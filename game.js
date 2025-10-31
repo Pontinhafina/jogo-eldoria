@@ -187,9 +187,9 @@ let gameTime = {
 // NOVO: Central de Músicas do Jogo
 // INSTRUÇÃO: Coloque suas músicas na pasta 'assets/music' e atualize os nomes dos arquivos aqui.
 const MUSIC_TRACKS = {
-    menu: './assets/music/musica menuI.mp3', // Música para o menu principal
-    exploration: './assets/music/Pixel Overworld Quest (Chiptune Loop).mp3', // Música para exploração
-    combat: './assets/music/the-duel.mp3' // Música para batalhas
+    menu: './assets/sounds/musica menuI.mp3', // Música para o menu principal
+    exploration: './assets/sounds/Pixel Overworld Quest (Chiptune Loop).mp3', // Música para exploração
+    combat: './assets/sounds/the-duel.mp3' // Música para batalhas
 };
 
 
