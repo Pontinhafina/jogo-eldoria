@@ -1098,8 +1098,13 @@
                 <ul id="inventory-list" class="text-sm">
                     <!-- Itens serão injetados aqui -->
                     <li class="text-gray-400 italic">Inventário vazio</li>
-                </ul>            </div>
+                </ul>
+            </div>
 
+            <!-- Botão de Debug movido para o final da sidebar -->
+            <button id="debug-toggle-button" class="header-button bg-gray-700 hover:bg-gray-600 text-white mt-auto">
+                🐞 Debug
+            </button>
         </aside>
 
         <button id="sidebar-toggle">
@@ -1108,56 +1113,48 @@
             </svg>
         </button>
 
-        <div class="flex flex-col flex-grow p-2 md:p-4 h-full">            <header id="main-header" class="text-center p-3 rounded-xl mb-2">
+        <div class="flex flex-col flex-grow p-2 md:p-4 h-full">
+            <header id="main-header" class="text-center p-3 rounded-xl mb-2">
                 <h1 class="tracking-wider">Eldoria: Crônicas do Oráculo</h1>
                 <div class="text-xs mt-1">
                     <p>Jogador: <span id="character-name-display" class="font-bold">...</span></p>
-                    <div class="header-buttons">
-                        <button id="audio-toggle-button" class="header-button bg-gray-700 hover:bg-gray-600 text-white">
-                            🎵 Música
-                        </button>
-                        <button id="reset-game-button" class="header-button bg-red-700 hover:bg-red-600 text-white">
-                            🔄 Novo
-                        </button>
-                        <button id="save-game-button" class="header-button bg-green-700 hover:bg-green-600 text-white">
-                            💾 Salvar
-                        </button>
-                        <button id="skills-modal-button" class="header-button bg-purple-700 hover:bg-purple-600 text-white">
-                            🌳 Skills
-                        </button>
-                        <!-- NOVOS BOTÕES MODAIS -->
-                        <button id="quests-modal-button" class="header-button bg-yellow-700 hover:bg-yellow-600 text-white">
-                            📜 Missões
-                        </button>
+                </div>
+            </header>
 
-                        <!-- NOVO: Menu Dropdown "Ações no Mundo" -->
-                        <div class="relative inline-block text-left">
-                            <button id="world-actions-button" class="header-button bg-blue-700 hover:bg-blue-600 text-white flex items-center gap-1">
-                                <span>🌍</span> Ações no Mundo
-                            </button>
-                            <div id="world-actions-dropdown" class="absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-primary-dark ring-1 ring-accent-gold ring-opacity-50 z-50 hidden">
-                                <div class="py-1" role="menu" aria-orientation="vertical">
-                                    <a href="#" id="shop-modal-button" class="dropdown-item">🏪 Loja</a>
-                                    <a href="#" id="bounty-board-modal-button" class="dropdown-item">📜 Recompensas</a>
-                                    <a href="#" id="travel-modal-button" class="dropdown-item">🗺️ Viajar</a>
-                                </div>
-                            </div>
-                        </div>
-                        <style>
-                            .dropdown-item { display: block; padding: 0.5rem 1rem; font-size: 0.875rem; color: var(--text-light); }
-                            .dropdown-item:hover { background-color: var(--primary-medium); }
-                        </style>
+            <!-- ============================================= -->
+            <!-- NOVA BARRA DE AÇÕES PRINCIPAL -->
+            <!-- ============================================= -->
+            <div id="main-action-bar" class="flex flex-wrap items-center justify-center gap-2 mb-2 p-2 rounded-lg bg-primary-medium border border-primary-light">
+                <!-- Menu Dropdown "Ações no Mundo" -->
+                <div class="relative inline-block text-left">
+                    <button id="world-actions-button" class="action-bar-button">
+                        <span>🌍</span> Ações no Mundo
+                    </button>
+                    <div id="world-actions-dropdown" class="dropdown-menu">
+                        <a href="#" id="shop-modal-button" class="dropdown-item">🏪 Loja</a>
+                        <a href="#" id="bounty-board-modal-button" class="dropdown-item">📜 Recompensas</a>
+                        <a href="#" id="travel-modal-button" class="dropdown-item">🗺️ Viajar</a>
+                        <a href="#" id="crafting-modal-button" class="dropdown-item">🛠️ Criar Itens</a>
+                        <a href="#" id="bestiary-modal-button" class="dropdown-item">👹 Bestiário</a>
+                        <a href="#" id="relationships-modal-button" class="dropdown-item">💖 Relações</a>
+                    </div>
+                </div>
 
-                        <button id="simular-combate-btn" class="header-button bg-red-900 hover:bg-red-800 text-white">
-                            ⚔️ Simular Combate
-                        </button>
-                        <!-- BOTÃO DE MENU REFEITO -->
+                <button id="skills-modal-button" class="action-bar-button">
+                    <span>🌳</span> Habilidades
+                </button>
+                <button id="quests-modal-button" class="action-bar-button">
+                    <span>📜</span> Missões
+                </button>
+                <button id="inventory-modal-button" class="action-bar-button">
+                    <span>🎒</span> Inventário
+                </button>
+
+                <div class="ml-auto">
                         <button id="ingame-menu-button" class="header-button bg-gray-500 hover:bg-gray-400 text-black">
                             ☰ Menu
                         </button>
-                    </div>
-                </div>
-            </header>
+            </div>
 
             <!-- NOVO: Interface de Posturas de Combate -->
             <div id="combat-stances" class="hidden justify-center gap-2 mb-2">
@@ -1185,7 +1182,7 @@
             </style>
 
             <!-- Interface de Combate -->
-            <div id="combat-ui" class="hidden mb-3 p-3 rounded-xl bg-gray-800 border-2 border-red-600">
+            <div id="combat-ui" class="hidden mb-2 p-3 rounded-xl bg-gray-800 border-2 border-red-600">
                 <div class="text-center mb-3">
                     <h3 class="text-lg font-bold text-red-400 mb-1" id="enemy-name">Inimigo</h3>
                     <!-- Barra de vida do inimigo (NOVO) -->
@@ -1405,6 +1402,7 @@
                         <button id="menu-save-game-btn" class="main-menu-button w-full">💾 Salvar Jogo</button>
                         <button id="menu-load-game-btn" class="main-menu-button w-full">📂 Carregar Jogo</button>
                         <button id="menu-settings-btn" class="main-menu-button w-full">⚙️ Configurações</button>
+                        <button id="simular-combate-btn" class="main-menu-button w-full bg-red-900/50 hover:bg-red-800/50">⚔️ Simular Combate</button>
                         <button id="menu-main-menu-btn" class="main-menu-button w-full bg-red-800 hover:bg-red-700">🚪 Voltar ao Menu Principal</button>
                     </div>
                     <div class="mt-8">
@@ -1562,7 +1560,7 @@
 
 
             <main class="flex flex-col flex-grow min-h-0">
-                <div id="chat-area" class="flex-grow p-3 rounded-xl overflow-y-auto mb-2">
+                <div id="chat-area" class="flex-grow p-3 rounded-xl overflow-y-auto">
                     <div class="text-center text-gray-500 italic py-8">
                         Crie seu personagem para começar a aventura...
                     </div>
@@ -1589,7 +1587,6 @@
     SCRIPT PRINCIPAL DO JOGO
     =============================================
     -->
-    <script src="https://cdn.jsdelivr.net/npm/phaser@3.55.2/dist/phaser.min.js"></script>
     <script src="data.js"></script>
     <script src="game.js"></script>
 </body>
