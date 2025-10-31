@@ -187,9 +187,9 @@ let gameTime = {
 // NOVO: Central de Músicas do Jogo
 // INSTRUÇÃO: Coloque suas músicas na pasta 'assets/music' e atualize os nomes dos arquivos aqui.
 const MUSIC_TRACKS = {
-    menu: './assets/sounds/musica menuI.mp3', // Música para o menu principal
-    exploration: './assets/sounds/Pixel Overworld Quest (Chiptune Loop).mp3', // Música para exploração
-    combat: './assets/sounds/the-duel.mp3' // Música para batalhas
+    menu: 'assets/music/musica menuI.mp3', // Música para o menu principal
+    exploration: 'assets/music/Pixel Overworld Quest (Chiptune Loop).mp3', // Música para exploração
+    combat: 'assets/music/the-duel.mp3' // Música para batalhas
 };
 
 
@@ -293,6 +293,7 @@ function saveCharacterProfile() {
     
     document.getElementById('chat-area').innerHTML = '';
     startInitialStory();
+    setMusicTrack('assets/music/the-epic-2-by-keys-of-moon.mp3');
     setMusicTrack(MUSIC_TRACKS.exploration);
     console.log("Character saved successfully:", localCharacterProfile);
 }
@@ -2046,6 +2047,21 @@ function resetGame() {
     }
 }
 
+function updateTimeUI() {
+    if (!gameTime) return;
+    const hour = Math.floor(gameTime.hour);
+    const minutes = Math.round((gameTime.hour - hour) * 60);
+    const timeString = `${hour.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
+
+    let period = 'Manhã';
+    if (hour >= 12 && hour < 18) period = 'Tarde';
+    else if (hour >= 18 || hour < 6) period = 'Noite';
+
+    document.getElementById('time-day').textContent = gameTime.day;
+    document.getElementById('time-hour').textContent = timeString;
+    document.getElementById('time-period').textContent = period;
+}
+
 function startInitialStory() {
      let msg;
      if(localCharacterProfile) localCharacterProfile.statusEffects = []; // Zera efeitos no início
@@ -2057,6 +2073,9 @@ function startInitialStory() {
          msg = `📜 A Profecia - ${localCharacterProfile.name}... **COMEÇA AGORA.**`; 
          addMessage(msg, 'ai');
          generateAIResponse("Inicie cena de abertura narrativa para "+localCharacterProfile.name+", "+localCharacterProfile.role+" "+localCharacterProfile.sex+" e apresente as opções A, B, C, D.", localCharacterProfile);
+     }
+     if (isMusicPlaying) {
+        setMusicTrack(MUSIC_TRACKS.exploration);
      }
      updateRelationshipsUI(); 
      updateQuestsUI();
@@ -2525,7 +2544,9 @@ window.addEventListener('load', () => {
         }
 
         // Toca a música do menu
-        setMusicTrack(MUSIC_TRACKS.menu);
+        if (isMusicPlaying) {
+            setMusicTrack(MUSIC_TRACKS.menu);
+        }
     }
 
     function updateDifficultyButtons() {
