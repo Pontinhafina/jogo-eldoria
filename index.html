@@ -1100,13 +1100,6 @@
                     <li class="text-gray-400 italic">Inventário vazio</li>
                 </ul>            </div>
 
-            <!-- NOVO: Contêiner para o Jogo Phaser -->
-            <div class="sidebar-section">
-                <h3>Visualização</h3>
-                <div id="game-container" class="bg-black rounded-lg overflow-hidden mx-auto" style="width: 250px; height: 187.5px;">
-                    <!-- O jogo Phaser será renderizado aqui -->
-                </div>
-            </div>
         </aside>
 
         <button id="sidebar-toggle">
@@ -1139,17 +1132,14 @@
 
                         <!-- NOVO: Menu Dropdown "Ações no Mundo" -->
                         <div class="relative inline-block text-left">
-                            <button id="world-actions-button" class="header-button bg-blue-700 hover:bg-blue-600 text-white">
-                                🌍 Ações no Mundo
+                            <button id="world-actions-button" class="header-button bg-blue-700 hover:bg-blue-600 text-white flex items-center gap-1">
+                                <span>🌍</span> Ações no Mundo
                             </button>
-                            <div id="world-actions-dropdown" class="absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-primary-light ring-1 ring-black ring-opacity-5 z-50 hidden">
+                            <div id="world-actions-dropdown" class="absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-primary-dark ring-1 ring-accent-gold ring-opacity-50 z-50 hidden">
                                 <div class="py-1" role="menu" aria-orientation="vertical">
                                     <a href="#" id="shop-modal-button" class="dropdown-item">🏪 Loja</a>
                                     <a href="#" id="bounty-board-modal-button" class="dropdown-item">📜 Recompensas</a>
                                     <a href="#" id="travel-modal-button" class="dropdown-item">🗺️ Viajar</a>
-                                    <a href="#" id="crafting-modal-button" class="dropdown-item">🛠️ Criar Itens</a>
-                                    <a href="#" id="bestiary-modal-button" class="dropdown-item">👹 Bestiário</a>
-                                    <a href="#" id="relationships-modal-button" class="dropdown-item">💖 Relações</a>
                                 </div>
                             </div>
                         </div>
@@ -1601,6 +1591,6 @@
     -->
     <script src="https://cdn.jsdelivr.net/npm/phaser@3.55.2/dist/phaser.min.js"></script>
     <script src="data.js"></script>
-    <script src="game.js"></script><script src="phaser_game.js"></script>
+    <script src="game.js"></script>
 </body>
 </html>
