@@ -1561,25 +1561,27 @@
 
 
             <main class="flex flex-col flex-grow min-h-0">
-                <div id="chat-area" class="flex-grow p-3 rounded-xl overflow-y-auto shrink">
+                <div id="chat-area" class="flex-grow p-3 rounded-xl overflow-y-auto">
                     <div class="text-center text-gray-500 italic py-8">
                         Crie seu personagem para começar a aventura...
                     </div>
                 </div>
+
+                <!-- ============================================= -->
+                <!-- NOVA BARRA DE AÇÕES INFERIOR (OTIMIZADA PARA MOBILE) -->
+                <!-- ============================================= -->
+                <div id="bottom-action-bar">
+                    <!-- Área de Escolhas (A, B, C, D) -->
+                    <div id="choice-buttons-area" class="hidden"></div>
+                    <!-- Área de Input de Texto -->
+                    <section id="input-area" class="input-section">
+                        <input type="text" id="user-input" placeholder="Digite sua ação..." class="flex-grow p-3 rounded-xl bg-gray-800 text-white border border-gray-600" disabled>
+                        <button id="send-button" class="font-bold rounded-xl" disabled>
+                            Enviar
+                        </button>
+                    </section>
+                </div>
             </main>
-
-            <!-- ÁREA DE INPUT CORRIGIDA -->
-            <section class="input-section">
-                <input type="text" id="user-input" placeholder="Digite sua ação..." class="flex-grow p-3 rounded-xl bg-gray-800 text-white border border-gray-600" disabled>
-                <button id="send-button" class="font-bold rounded-xl" disabled>
-                    Enviar
-                </button>
-            </section>
-
-            <!-- ÁREA DE ESCOLHAS (AGORA DENTRO DO LAYOUT PRINCIPAL) -->
-            <div id="choice-buttons-area" class="hidden mt-2 shrink-0">
-                <!-- Botões A, B, C, D serão injetados aqui -->
-            </div>
         </div> <!-- Fim do flex-grow -->
     </div>
 
