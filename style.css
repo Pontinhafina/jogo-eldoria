@@ -51,33 +51,38 @@ body {
     background-color: #1e1a1a;
     color: var(--text-light); 
     border: 2px solid #3a2e2a;
+    box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.5);
 }
 
-/* NOVO: Estilo da barra de rolagem para um visual mais moderno */
+/* NOVO: Estilo da barra de rolagem para um visual mais moderno e funcional */
 #chat-area::-webkit-scrollbar {
     width: 8px;
 }
 #chat-area::-webkit-scrollbar-track {
-    background: transparent;
+    background: rgba(0, 0, 0, 0.2); /* Fundo semi-transparente para a trilha */
 }
 #chat-area::-webkit-scrollbar-thumb {
     background-color: var(--primary-light);
     border-radius: 10px;
+    border: 2px solid var(--primary-dark); /* Borda para contraste */
+}
+#chat-area::-webkit-scrollbar-thumb:hover {
+    background-color: var(--accent-gold); /* Cor de destaque ao passar o mouse */
 }
 
-/* ============================================= */
-/* NOVO: PAINEL DE CENA E OBJETIVO               */
-/* ============================================= */
-#scene-panel {
-    display: flex; /* Por padrão, já é flex, mas garantimos */
-}
 
-#game-container {
-    width: 160px;
-    height: 120px;
-    border: 1px solid var(--accent-gold);
-}
 
+.message-box { 
+    border-radius: 12px; 
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3); 
+    padding: 0.75rem 1rem; /* Reduzido padding */
+    margin-bottom: 0.75rem; /* Reduzido margin */
+    max-width: 90%;
+    word-wrap: break-word;
+    display: flex;
+    align-items: flex-start;
+    font-size: 0.9rem; /* Levemente menor fonte */
+}
 
 .message-content {
     flex-grow: 1;
@@ -308,6 +313,13 @@ body {
 .dropdown-menu {
     @apply absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-primary-dark ring-1 ring-accent-gold ring-opacity-50 z-50 hidden;
 }
+
+/* NOVO: Esconde a barra de ações superior em telas pequenas */
+@media (max-width: 768px) {
+    #main-action-bar {
+        display: none;
+    }
+}
 /* Combat UI */
 #combat-ui {
     transition: all 0.3s ease;
@@ -336,13 +348,6 @@ body {
 }
 
 /* Input section */
-.input-section {
-    display: flex;
-    gap: 0.5rem;
-    margin-top: 0.5rem;
-    align-items: flex-end;
-}
-
 #user-input {
     flex: 1;
     min-height: 50px;
@@ -684,47 +689,41 @@ body {
 }
 
 /* Choice buttons - AGORA NO CHAT */
-#choice-buttons-area {
-    transition: all 0.3s ease;
-    font-size: 0.9rem;
-    width: 100%;
-    display: flex; /* Mudar para flex para alinhar itens */
-    align-items: center;
-    gap: 0.5rem;
-}
-
 /* NOVO: Layout em grade para as escolhas */
 #choice-buttons-area {
-    /* Removido o display: grid daqui para aplicar no botão */
+    display: grid;
+    grid-template-columns: repeat(2, 1fr); /* Grade 2x2 em telas pequenas */
+    gap: 0.5rem;
+    width: 100%;
+}
+
+/* Em telas maiores, as escolhas ficam em uma única coluna */
+@media (min-width: 768px) {
+    #choice-buttons-area {
+        grid-template-columns: 1fr;
+    }
 }
 
 .choice-button {
     background: linear-gradient(135deg, #3a445c 0%, #2a3245 100%);
     border: 1px solid var(--accent-gold);
     border-radius: 8px;
-    padding: 0.75rem 1rem;
+    padding: 0.5rem 0.75rem; /* Padding reduzido para mobile */
     color: var(--text-light);
     text-align: left;
     cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 0.8rem; /* Fonte menor para mobile */
     width: 100%;
     display: flex;
     align-items: center;
     gap: 0.5rem;
 }
 
-/* NOVO: Layout adaptável para celulares */
-@media (max-width: 768px) {
-    display: grid;
-    #choice-buttons-area {
-        grid-template-columns: repeat(2, 1fr); /* Grade 2x2 em telas pequenas */
-    }
-}
-
 .choice-button:hover {
     background: linear-gradient(135deg, #4a547c 0%, #3a4255 100%);
     transform: translateY(-2px);
 }
-
 .choice-letter {
     display: inline-block;
     width: 24px;
@@ -899,4 +898,44 @@ body {
     70% { box-shadow: 0 0 0 10px rgba(30, 144, 255, 0); }
     100% { box-shadow: 0 0 0 0 rgba(30, 144, 255, 0); }
 }
+
+/* ============================================= */
+/* NOVA BARRA DE AÇÕES INFERIOR (MOBILE-FIRST)   */
+/* ============================================= */
+
+/* Em telas maiores (desktop), a barra é apenas um contêiner normal no final do fluxo */
+.input-section {
+    margin-top: 0.5rem;
+#bottom-action-bar {
+    padding: 0.5rem;
+    background-color: var(--primary-dark);
+    border-top: 1px solid var(--primary-light);
+    flex-shrink: 0; /* Impede que a barra encolha */
+}
+
+/* Em telas menores (mobile), a barra se torna fixa na parte inferior */
+@media (max-width: 768px) {
+    #bottom-action-bar {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        padding: 0.5rem;
+        background-color: var(--primary-dark);
+        border-top: 1px solid var(--primary-light);
+        z-index: 40;
+    }
+    /* Adiciona um preenchimento na parte inferior do corpo para que a barra não cubra o último chat */
+    body {
+        padding-bottom: 80px; /* Espaço para a barra inferior */
+    }
+}
+
+.input-section {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+    width: 100%;
+}
+
 }
