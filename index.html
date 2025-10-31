@@ -1134,9 +1134,6 @@
                         <a href="#" id="shop-modal-button" class="dropdown-item">🏪 Loja</a>
                         <a href="#" id="bounty-board-modal-button" class="dropdown-item">📜 Recompensas</a>
                         <a href="#" id="travel-modal-button" class="dropdown-item">🗺️ Viajar</a>
-                        <a href="#" id="crafting-modal-button" class="dropdown-item">🛠️ Criar Itens</a>
-                        <a href="#" id="bestiary-modal-button" class="dropdown-item">👹 Bestiário</a>
-                        <a href="#" id="relationships-modal-button" class="dropdown-item">💖 Relações</a>
                     </div>
                 </div>
 
@@ -1148,6 +1145,10 @@
                 </button>
                 <button id="inventory-modal-button" class="action-bar-button">
                     <span>🎒</span> Inventário
+                </button>
+                <!-- NOVO: Botão de Relações de volta -->
+                <button id="relationships-modal-button" class="action-bar-button">
+                    <span>💖</span> Relações
                 </button>
 
                 <div class="ml-auto">
@@ -1560,15 +1561,10 @@
 
 
             <main class="flex flex-col flex-grow min-h-0">
-                <div id="chat-area" class="flex-grow p-3 rounded-xl overflow-y-auto">
+                <div id="chat-area" class="flex-grow p-3 rounded-xl overflow-y-auto shrink">
                     <div class="text-center text-gray-500 italic py-8">
                         Crie seu personagem para começar a aventura...
                     </div>
-                </div>
-                
-                <!-- ÁREA DE ESCOLHAS (NOVO) -->
-                <div id="choice-buttons-area" class="hidden">
-                    <!-- Botões A, B, C, D serão injetados aqui -->
                 </div>
             </main>
 
@@ -1579,7 +1575,20 @@
                     Enviar
                 </button>
             </section>
+
+            <!-- ÁREA DE ESCOLHAS (AGORA DENTRO DO LAYOUT PRINCIPAL) -->
+            <div id="choice-buttons-area" class="hidden mt-2 shrink-0">
+                <!-- Botões A, B, C, D serão injetados aqui -->
+            </div>
         </div> <!-- Fim do flex-grow -->
+    </div>
+
+    <!-- ============================================= -->
+    <!-- NOVO: PAINEL DE DEBUG -->
+    <!-- ============================================= -->
+    <div id="debug-panel" class="hidden fixed bottom-4 right-4 bg-black bg-opacity-80 text-white text-xs p-4 rounded-lg z-[200] max-w-sm max-h-60 overflow-y-auto border border-yellow-500/50">
+        <h4 class="font-bold text-yellow-400 mb-2">Debug Info</h4>
+        <div id="debug-content" class="space-y-1"></div>
     </div>
 
     <!-- 
