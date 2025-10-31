@@ -1,0 +1,1606 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Eldoria: Crônicas do Oráculo</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Adiciona Tone.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script><link rel="stylesheet" href="style.css">
+    <!--<style>        /* Estilos CSS Inalterados... */
+        @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400..900&family=Merriweather:ital,wght@0,300;0,400;0,700;0,900;1,300;1,400;1,700;1,900&display=swap');
+        
+        :root {
+            --primary-dark: #1a1f2e;
+            --primary-medium: #2a3245;
+            --primary-light: #3a445c;
+            --accent-gold: #d4af37;
+            --accent-red: #c41e3a;
+            --accent-blue: #1e90ff;
+            --text-light: #f5f5f5;
+            --text-dim: #b8b8b8;
+        }
+        
+        body {
+            font-family: 'Merriweather', serif;
+            background-color: var(--primary-dark);
+            color: var(--text-light);
+            background-image: 
+                radial-gradient(circle at 10% 20%, rgba(42, 50, 69, 0.5) 0%, transparent 20%),
+                radial-gradient(circle at 90% 80%, rgba(42, 50, 69, 0.5) 0%, transparent 20%);
+        }
+
+        #main-header {
+            background: linear-gradient(145deg, var(--primary-medium) 0%, var(--primary-dark) 100%);
+            border: 2px solid var(--accent-gold);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5), inset 0 0 10px rgba(212, 175, 55, 0.2);
+        }
+        
+        #main-header h1 {
+            font-family: 'Cinzel', serif; 
+            font-size: 1.5rem; 
+            text-shadow: 0 0 8px var(--accent-gold), 0 0 15px rgba(212, 175, 55, 0.6); 
+            color: var(--accent-gold);
+        }
+        
+        @media (min-width: 768px) {
+            #main-header h1 {
+                font-size: 2.5rem;
+            }
+        }
+        
+        #character-name-display { 
+            color: var(--accent-gold); 
+            text-shadow: 0 0 3px rgba(212, 175, 55, 0.3); 
+            font-size: 0.8rem;
+        }
+
+        /* Chat area styling */
+        #chat-area { 
+            background-color: #1e1a1a;
+            color: var(--text-light); 
+            border: 2px solid #3a2e2a;
+            box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.5);
+            overflow-y: auto;
+            height: 50vh; /* Ajuste para caber botões de escolha */
+        }
+        
+        @media (min-width: 768px) {
+            #chat-area {
+                height: 60vh; /* Ajuste para caber botões de escolha */
+            }
+        }
+        
+        .message-box { 
+            border-radius: 12px; 
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3); 
+            padding: 0.75rem 1rem; /* Reduzido padding */
+            margin-bottom: 0.75rem; /* Reduzido margin */
+            max-width: 90%;
+            word-wrap: break-word;
+            display: flex;
+            align-items: flex-start;
+            font-size: 0.9rem; /* Levemente menor fonte */
+        }
+
+        .message-content {
+            flex-grow: 1;
+        }
+        
+        .user-message { 
+            background: linear-gradient(135deg, #2a3c5f 0%, #1e2a47 100%);
+            color: var(--text-light); 
+            margin-left: auto; 
+            border: 1px solid #3a5278;
+            flex-direction: row-reverse;
+        }
+
+        .user-message .message-content {
+             padding-right: 0.5rem;
+        }
+        
+        .ai-message { 
+            background: linear-gradient(135deg, #3a2e2a 0%, #2a221f 100%);
+            color: var(--text-light); 
+            border-left: 6px solid var(--accent-gold);
+            margin-right: auto; 
+            flex-direction: row;
+        }
+
+        .ai-message .message-content {
+             padding-left: 0.5rem;
+        }
+
+
+        .avatar {
+            width: 35px; /* Reduzido avatar */
+            height: 35px;
+            border-radius: 50%;
+            object-fit: cover;
+            flex-shrink: 0;
+            margin: 0 0.5rem;
+        }
+
+
+        .combat-message {
+            background: linear-gradient(135deg, #5a2e2e 0%, #3a1e1e 100%);
+            border-left: 6px solid var(--accent-red);
+        }
+
+        .level-up-message {
+            background: linear-gradient(135deg, #2e5a3a 0%, #1e3a2a 100%);
+            border-left: 6px solid #44ff44;
+        }
+
+        .spell-message {
+            background: linear-gradient(135deg, #2e3a5a 0%, #1e2a3a 100%);
+            border-left: 6px solid var(--accent-blue);
+        }
+
+        /* Input and Button theme */
+        #user-input { 
+            background-color: #2a221f; 
+            border: 2px solid #3a2e2a; 
+            color: var(--text-light); 
+            font-size: 1rem; /* Tamanho padrão */
+            padding: 0.75rem; /* Reduzido padding */
+            min-height: 50px; /* Reduzido min height */
+        }
+        
+        #send-button { 
+            background: linear-gradient(135deg, var(--accent-gold) 0%, #b8941f 100%);
+            color: var(--primary-dark); 
+            border: 1px solid var(--accent-gold);
+            padding: 0.75rem 1rem; /* Reduzido padding */
+            white-space: nowrap;
+        }
+
+        .combat-button, .item-button {
+            background: linear-gradient(135deg, var(--accent-red) 0%, #a61e3a 100%);
+            color: white;
+            border: 1px solid var(--accent-red);
+            padding: 0.5rem; /* Reduzido padding */
+            font-size: 0.8rem; /* Reduzido font */
+        }
+
+        .skill-button {
+            background: linear-gradient(135deg, var(--accent-blue) 0%, #1e70ff 100%);
+            color: white;
+            border: 1px solid var(--accent-blue);
+            padding: 0.5rem; /* Reduzido padding */
+            font-size: 0.8rem; /* Reduzido font */
+        }
+
+        .spell-button {
+            background: linear-gradient(135deg, #8a2be2 0%, #6a1bb2 100%);
+            color: white;
+            border: 1px solid #8a2be2;
+            padding: 0.5rem; /* Reduzido padding */
+            font-size: 0.8rem; /* Reduzido font */
+        }
+        
+        .item-button {
+            background: linear-gradient(135deg, #2e7d32 0%, #1b5e20 100%);
+            border: 1px solid #4caf50;
+        }
+
+        /* Modal styling */
+        #character-setup, #skills-modal, #relationships-modal, #quests-modal, #attributes-modal, #music-modal, #combat-items-modal { 
+            z-index: 70; 
+        }
+        
+        .modal-content { 
+            background: linear-gradient(135deg, var(--primary-medium) 0%, var(--primary-dark) 100%);
+            border: 2px solid var(--accent-gold); 
+            max-height: 90vh;
+            overflow-y: auto;
+            margin: 1rem;
+        }
+        
+        .modal-content h2 { 
+            color: var(--accent-gold); 
+        }
+
+        /* Sidebar styling */
+        #sidebar { 
+            position: fixed; 
+            top: 0; 
+            left: 0; 
+            height: 100%; 
+            width: 280px; 
+            transform: translateX(-100%); 
+            transition: transform 0.3s ease-in-out; 
+            z-index: 50; 
+            overflow-y: auto; 
+            background: linear-gradient(135deg, var(--primary-medium) 0%, var(--primary-dark) 100%);
+            border-right: 2px solid var(--accent-gold);
+            padding-top: 4rem;
+        }
+        
+        #sidebar.open { transform: translateX(0); }
+        
+        @media (min-width: 768px) { 
+            #sidebar { 
+                position: relative; 
+                transform: translateX(0); 
+                min-width: 300px; 
+                width: 300px; 
+                padding-top: 1rem;
+            } 
+        }
+        
+        #sidebar-toggle { 
+            display: block; 
+            position: fixed; 
+            left: 1rem; 
+            top: 1rem; 
+            z-index: 60; 
+            background-color: var(--accent-gold); 
+            color: var(--primary-dark); 
+            padding: 0.5rem; 
+            border-radius: 50%; 
+            width: 40px;
+            height: 40px;
+        }
+        
+        @media (min-width: 768px) { 
+            #sidebar-toggle { display: none; } 
+        }
+        
+        .sidebar-section { 
+            background-color: rgba(35, 45, 60, 0.8); 
+            border: 1px solid #5a4b3f; 
+            border-radius: 8px; 
+            padding: 0.75rem; 
+            margin-bottom: 0.75rem; 
+            font-size: 0.9rem;
+        }
+        
+        .sidebar-section h3 { 
+            font-family: 'Cinzel', serif; 
+            color: var(--accent-gold); 
+            font-size: 1.1rem; 
+            margin-bottom: 0.5rem; 
+        }
+
+        /* Header buttons */
+        .header-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.25rem;
+            justify-content: center;
+            margin-top: 0.5rem;
+        }
+
+        .header-button {
+            padding: 0.4rem 0.6rem;
+            border-radius: 6px;
+            font-size: 0.7rem;
+            white-space: nowrap;
+        }
+
+        /* Combat UI */
+        #combat-ui {
+            transition: all 0.3s ease;
+            padding: 0.75rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .combat-actions {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+
+        .skills-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+
+        @media (min-width: 768px) {
+            .skills-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        /* Input section */
+        .input-section {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+            align-items: flex-end;
+        }
+
+        #user-input {
+            flex: 1;
+            min-height: 50px;
+        }
+
+        #send-button {
+            height: fit-content;
+            padding: 0.75rem 1rem;
+        }
+
+        /* Character creation */
+        .creation-section {
+            margin-bottom: 1rem;
+        }
+
+        .creation-section-title {
+            font-family: 'Cinzel', serif;
+            color: var(--accent-gold);
+            font-size: 1.1rem;
+            margin-bottom: 0.5rem;
+            border-bottom: 1px solid rgba(212, 175, 55, 0.3);
+            padding-bottom: 0.25rem;
+        }
+
+        .class-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.5rem;
+        }
+
+        .class-card {
+            background: rgba(42, 50, 69, 0.8);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 6px;
+            padding: 0.5rem;
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            font-size: 0.8rem;
+        }
+
+        .class-card:hover {
+            background: rgba(42, 50, 69, 1);
+            border-color: var(--accent-gold);
+            transform: translateY(-2px);
+        }
+
+        .class-card.selected {
+            border-color: var(--accent-gold);
+            box-shadow: 0 0 10px rgba(212, 175, 55, 0.5);
+            background: rgba(42, 50, 69, 1);
+        }
+
+        .class-icon-img {
+            width: 40px; /* Reduzido */
+            height: 40px; /* Reduzido */
+            object-fit: cover;
+            margin: 0 auto 0.25rem; /* Centraliza a imagem */
+            border-radius: 4px; /* Adiciona borda arredondada */
+        }
+
+        .class-name {
+            font-weight: bold;
+            font-size: 0.8rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .class-desc {
+            font-size: 0.65rem;
+            color: var(--text-dim);
+            line-height: 1.2;
+        }
+        
+        /* Attributes display */
+        .attributes-grid {
+             display: grid;
+             grid-template-columns: repeat(2, 1fr);
+             gap: 0.5rem;
+             margin-top: 0.5rem;
+        }
+        .attribute-card {
+            background: rgba(0,0,0,0.2);
+            padding: 0.5rem;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            text-align: center;
+        }
+        .attribute-name { color: var(--text-dim); }
+        .attribute-value { font-weight: bold; font-size: 1rem; color: var(--text-light); }
+        .attribute-desc { font-size: 0.65rem; color: var(--text-dim); }
+
+
+        /* Multiplayer styles */
+        .online-indicator {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 5px;
+        }
+
+        .online {
+            background-color: #44ff44;
+            box-shadow: 0 0 5px #44ff44;
+        }
+
+        .offline {
+            background-color: #ff4444;
+        }
+
+        .game-mode-buttons {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .mode-button {
+            flex: 1;
+            padding: 0.75rem;
+            border-radius: 8px;
+            font-weight: bold;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .mode-button.active {
+            border: 2px solid var(--accent-gold);
+            box-shadow: 0 0 10px rgba(212, 175, 55, 0.5);
+        }
+
+        .singleplayer-mode {
+            background: linear-gradient(135deg, #2a5a3a 0%, #1e3a2a 100%);
+        }
+
+        .multiplayer-mode {
+            background: linear-gradient(135deg, #3a2a5a 0%, #2a1e3a 100%);
+        }
+
+        /* Progress bars */
+        .progress-container {
+            width: 100%;
+            height: 10px; /* Reduzido */
+            background-color: rgba(0, 0, 0, 0.3);
+            border-radius: 5px; /* Reduzido */
+            overflow: hidden;
+            margin-top: 3px; /* Reduzido */
+        }
+
+        .progress-bar {
+            height: 100%;
+            border-radius: 5px; /* Reduzido */
+            transition: width 0.5s ease;
+        }
+
+        .hp-bar {
+            background: linear-gradient(90deg, #c41e3a, #ff6b6b);
+        }
+
+        .mp-bar {
+            background: linear-gradient(90deg, #1e90ff, #6bc5ff);
+        }
+
+        .xp-bar {
+            background: linear-gradient(90deg, #d4af37, #ffd700);
+        }
+
+        .focus-bar { /* NOVO */
+            background: linear-gradient(90deg, #ff8c00, #ffae42);
+        }
+
+        /* Skills tree */
+        #skills-modal .modal-content {
+            max-width: 600px;
+        }
+
+        .skill-node {
+            background: rgba(42, 50, 69, 0.8);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 6px;
+            padding: 0.5rem;
+            margin-bottom: 0.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .skill-node.active-skill {
+            background: linear-gradient(135deg, #4a3a5c 0%, #3a2a4c 100%);
+            border-color: var(--accent-blue);
+        }
+        
+        .skill-button-combat {
+            background: linear-gradient(135deg, #4a3a5c 0%, #3a2a4c 100%);
+            border: 1px solid var(--accent-blue);
+            color: white;
+            padding: 0.5rem; /* Reduzido */
+            border-radius: 6px; /* Reduzido */
+            cursor: pointer;
+            font-weight: bold;
+            transition: background 0.2s;
+            text-align: left;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.8rem; /* Reduzido */
+        }
+
+        .skill-button-combat:hover {
+            background: linear-gradient(135deg, #5a4a7c 0%, #4a3a5c 100%);
+        }
+
+        .skill-button-combat.disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            background: #2a2a2a;
+            border-color: #4a4a4a;
+        }
+
+        /* Relationships */
+        .relationship-card {
+            background: rgba(42, 50, 69, 0.8);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 6px;
+            padding: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .relationship-name {
+            font-weight: bold;
+            margin-bottom: 0.25rem;
+        }
+
+        .relationship-level {
+            height: 8px;
+            background-color: rgba(0, 0, 0, 0.3);
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 4px;
+        }
+
+        .relationship-fill {
+            height: 100%;
+            border-radius: 4px;
+            background: linear-gradient(90deg, #8a2be2, #b19cd9);
+        }
+
+        /* Story mode selector */
+        .story-mode-selector {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .story-mode-card {
+            background: rgba(42, 50, 69, 0.8);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 8px;
+            padding: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .story-mode-card:hover {
+            background: rgba(42, 50, 69, 1);
+            transform: translateY(-2px);
+        }
+
+        .story-mode-card.selected {
+            border-color: var(--accent-gold);
+            box-shadow: 0 0 10px rgba(212, 175, 55, 0.5);
+            background: rgba(42, 50, 69, 1);
+        }
+
+        .story-mode-title {
+            font-family: 'Cinzel', serif;
+            color: var(--accent-gold);
+            font-size: 1.1rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .story-mode-desc {
+            font-size: 0.8rem;
+            color: var(--text-dim);
+        }
+
+        /* Choice buttons - AGORA NO CHAT */
+        #choice-buttons-area {
+            margin-top: 0.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .choice-button {
+            background: linear-gradient(135deg, #3a445c 0%, #2a3245 100%);
+            border: 1px solid var(--accent-gold);
+            border-radius: 8px;
+            padding: 0.75rem 1rem;
+            color: var(--text-light);
+            text-align: left;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+            width: 100%;
+        }
+
+        .choice-button:hover {
+            background: linear-gradient(135deg, #4a547c 0%, #3a4255 100%);
+            transform: translateY(-2px);
+        }
+
+        .choice-letter {
+            display: inline-block;
+            width: 24px;
+            height: 24px;
+            background: var(--accent-gold);
+            color: var(--primary-dark);
+            border-radius: 50%;
+            text-align: center;
+            font-weight: bold;
+            margin-right: 0.5rem;
+            line-height: 24px;
+        }
+
+        /* Floating Text for Damage/Heal (NOVO) */
+        .floating-text {
+            position: absolute;
+            font-weight: bold;
+            font-size: 1.5rem;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.8);
+            animation: floatUp 1s ease-out forwards;
+            pointer-events: none;
+            z-index: 100;
+        }
+        
+        @keyframes floatUp {
+            0% { transform: translate(-50%, 0); opacity: 1; }
+            100% { transform: translate(-50%, -50px); opacity: 0; }
+        }
+
+        /* Combat Items Modal */
+        #combat-items-modal .modal-content {
+            max-width: 400px;
+        }
+
+        .item-list-modal {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .item-list-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem;
+            background: rgba(42, 50, 69, 0.8);
+            border-radius: 6px;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .item-list-item button {
+            background: #4caf50;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            font-weight: bold;
+            transition: background 0.2s;
+        }
+
+        .item-list-item button:hover {
+            background: #388e3c;
+        }
+
+        /* Loading indicator (NOVO) */
+        .loading-indicator {
+            border: 4px solid rgba(212, 175, 55, 0.3);
+            border-radius: 50%;
+            border-top: 4px solid var(--accent-gold);
+            width: 20px;
+            height: 20px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        /* Modal Quests/Relationships (NOVO) */
+        #quests-modal .modal-content, #relationships-modal .modal-content {
+            max-width: 500px;
+        }
+        .quest-item, .relationship-item {
+             background: rgba(42, 50, 69, 0.8);
+             border: 1px solid rgba(255,255,255,0.1);
+             border-radius: 6px;
+             padding: 0.75rem;
+             margin-bottom: 0.5rem;
+        }
+        .quest-title, .relationship-name { font-weight: bold; color: var(--accent-gold); }
+        .quest-status, .relationship-status { font-size: 0.8rem; color: var(--text-dim); margin-left: 0.5rem;}
+        .quest-desc, .relationship-desc { font-size: 0.85rem; color: var(--text-light); margin-top: 0.25rem;}
+
+        /* NOVO: Estilos para Balão de Diálogo */
+        .dialogue-bubble {
+            background: #4a547c;
+            border: 1px solid var(--accent-blue);
+            padding: 0.75rem;
+            border-radius: 12px;
+            margin: 0.5rem 0;
+            position: relative;
+        }
+        .dialogue-bubble .speaker-name {
+            font-weight: bold;
+            color: var(--accent-gold);
+        }
+
+        /* NOVO: Borda para avatar de NPC em diálogo */
+        .npc-avatar-border {
+            border-color: var(--accent-blue);
+        }
+
+        /* NOVO: Estilo para Resposta de Carta */
+        .letter-reply-bubble {
+            background: #e8dcb5; /* Cor de pergaminho */
+            color: #3a2e2a; /* Texto escuro */
+            border: 2px solid #c8b88a;
+            padding: 0.75rem;
+            border-radius: 8px;
+            margin: 0.5rem 0;
+            font-family: 'Cinzel', serif;
+        }
+        .letter-reply-bubble .speaker-name {
+            font-weight: bold;
+        }
+
+        /* NOVO: Estilos para Loja e Mural de Recompensas */
+        #shop-modal .modal-content, #bounty-board-modal .modal-content {
+            max-width: 600px; /* CORREÇÃO: Mantém a largura */
+            max-height: 85vh; /* CORREÇÃO: Adiciona altura máxima */
+            overflow-y: auto; /* CORREÇÃO: Adiciona rolagem se o conteúdo for grande */
+        }
+        .shop-item, .bounty-item {
+            background: rgba(42, 50, 69, 0.8);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 6px;
+            padding: 0.75rem;
+            margin-bottom: 0.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        .shop-item {
+            flex-direction: row;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .shop-button, .bounty-button {
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .shop-button.buy {
+            background: #4caf50;
+            color: white;
+        }
+        .shop-button.buy:hover {
+            background: #388e3c;
+        }
+        .bounty-title {
+            font-weight: bold;
+            color: var(--accent-gold);
+        }
+        .bounty-desc {
+            font-size: 0.9rem;
+            color: var(--text-light);
+        }
+        .bounty-reward {
+            font-size: 0.8rem;
+            color: var(--text-dim);
+        }
+        .bounty-button {
+            background: var(--accent-gold);
+            color: var(--primary-dark);
+            align-self: flex-start;
+        }
+        .bounty-button:disabled {
+            background: #555;
+            cursor: not-allowed;
+        }
+
+        /* NOVO: Estilo para botão de rastrear missão */
+        .track-quest-button {
+            background: var(--accent-blue);
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.2s;
+            margin-top: 0.5rem;
+        }
+
+        /* NOVO: Estilos para Reputação */
+        .reputation-bar-container {
+            position: relative;
+            width: 100%;
+            height: 10px;
+            background: linear-gradient(to right, var(--accent-blue) 0%, var(--accent-red) 100%);
+            border-radius: 5px;
+            margin-top: 4px;
+        }
+        #reputation-marker {
+            position: absolute;
+            top: 50%;
+            width: 12px;
+            height: 12px;
+            background-color: var(--accent-gold);
+            border: 1px solid white;
+            border-radius: 2px;
+            transform: translate(-50%, -50%) rotate(45deg);
+            transition: left 0.5s ease;
+        }
+    </style>--> 
+</head>
+<body class="h-screen overflow-hidden">
+
+    <!-- ============================================= -->
+    <!-- NOVO: MENU PRINCIPAL -->
+    <!-- ============================================= -->
+    <div id="main-menu" class="fixed inset-0 bg-primary-dark z-[100] flex flex-col items-center justify-center p-4 text-center">
+        <div class="absolute inset-0 bg-cover bg-center opacity-20" style="background-image: url('https://i.imgur.com/M2oGdpo.jpg');"></div>
+        <div class="relative z-10">
+            <h1 class="text-5xl md:text-7xl font-bold text-accent-gold mb-4" style="font-family: 'Cinzel', serif; text-shadow: 0 0 15px rgba(212, 175, 55, 0.7);">Eldoria</h1>
+            <p class="text-xl md:text-2xl text-text-dim mb-12" style="font-family: 'Merriweather', serif;">Crônicas do Oráculo</p>
+
+            <div class="space-y-4 flex flex-col items-center">
+                <button id="new-game-btn" class="main-menu-button">🎮 Nova Aventura</button>
+                <button id="load-game-btn" class="main-menu-button">📂 Carregar Jogo</button>
+                <button id="settings-btn" class="main-menu-button">⚙️ Configurações</button>
+                <button class="main-menu-button disabled-button" title="Em breve">🏆 Galeria</button>
+                <button class="main-menu-button disabled-button" title="Em breve">❓ Tutorial</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================= -->
+    <!-- NOVO: MODAL DE CONFIGURAÇÕES -->
+    <!-- ============================================= -->
+    <div id="settings-modal" class="fixed inset-0 bg-black bg-opacity-90 z-[110] flex items-center justify-center p-2 hidden">
+        <div class="modal-content p-6 rounded-xl w-full max-w-lg">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-3xl font-bold" style="font-family: 'Cinzel', serif; color: var(--accent-gold);">Configurações</h2>
+                <button id="close-settings-btn" class="text-white bg-red-600 hover:bg-red-700 rounded-full p-1.5">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"> <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /> </svg>
+                </button>
+            </div>
+            
+            <div class="space-y-6">
+                <!-- Volume -->
+                <div class="setting-item">
+                    <label for="music-volume-slider" class="block text-text-dim mb-2">🎵 Volume da Música</label>
+                    <input type="range" id="music-volume-slider" min="0" max="1" step="0.05" class="w-full">
+                </div>
+                <div class="setting-item">
+                    <label for="sfx-volume-slider" class="block text-text-dim mb-2">💥 Volume dos Efeitos</label>
+                    <input type="range" id="sfx-volume-slider" min="0" max="1" step="0.05" class="w-full">
+                </div>
+
+                <!-- Dificuldade -->
+                <div class="setting-item">
+                    <label class="block text-text-dim mb-2">🎮 Dificuldade do Jogo</label>
+                    <div class="flex space-x-2" id="difficulty-buttons">
+                        <button data-difficulty="Facil" class="difficulty-button">Fácil</button>
+                        <button data-difficulty="Normal" class="difficulty-button">Normal</button>
+                        <button data-difficulty="Dificil" class="difficulty-button">Difícil</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="border-t border-gray-600 mt-6 pt-4 text-center">
+                <p class="text-xs text-gray-500">As configurações são salvas automaticamente.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================= -->
+    <!-- CONTEÚDO DO JOGO (AGORA DENTRO DE UM WRAPPER) -->
+    <!-- ============================================= -->
+    <div id="game-wrapper" class="hidden flex-col h-full md:flex-row w-full">
+
+        <aside id="sidebar" class="p-4 flex flex-col pt-16 shrink-0">
+            <h2 class="text-2xl font-bold text-center mb-6" style="font-family: 'Cinzel', serif; color: var(--accent-gold);">Detalhes da Aventura</h2>
+
+            <!-- Seção Modo de Jogo -->
+            <div class="sidebar-section">
+                <h3>Modo de Jogo</h3>
+                <div class="game-mode-buttons">
+                    <div class="mode-button singleplayer-mode active" id="singleplayer-btn">
+                        🎯 Singleplayer
+                    </div>
+                    <div class="mode-button multiplayer-mode" id="multiplayer-btn">
+                        🎮 Multiplayer
+                    </div>
+                </div>
+                <div id="multiplayer-info" class="text-sm">
+                    <p class="text-gray-400 italic">Modo singleplayer ativo</p>
+                </div>
+            </div>
+
+            <!-- Seção Personagem -->
+            <div class="sidebar-section">
+                <h3>Personagem</h3>
+                <!-- NOVO: Imagem do Personagem -->
+                <div class="flex items-center space-x-3 mb-3">
+                    <img id="sidebar-char-image" class="w-16 h-16 rounded-full object-cover border-2 border-yellow-500" src="https://placehold.co/64x64/2a3245/d4af37?text=?" alt="Imagem do Personagem">
+                    <div>
+                        <p><strong>Nome:</strong> <span id="sidebar-char-name" class="text-yellow-300">-</span></p>
+                        <p><strong>Classe:</strong> <span id="sidebar-char-role" class="text-white">-</span></p>
+                    </div>
+                </div>
+                <!-- Fim do bloco da imagem -->
+                <p><strong>Nível:</strong> <span id="sidebar-char-level" class="text-green-400">1</span></p>
+                <p><strong>XP:</strong> <span id="sidebar-char-xp">0/100</span></p>
+                <div class="progress-container">
+                    <div id="xp-bar" class="progress-bar xp-bar" style="width: 0%"></div>
+                </div>
+                <!-- NOVO: Adicionado para exibir moedas -->
+                <div class="stat-item mt-2">
+                    <span class="font-bold">💰 Moedas:</span>
+                    <span id="sidebar-char-coins">0</span>
+                </div>
+            </div>
+
+            <!-- Seção Atributos -->
+            <div class="sidebar-section">
+                <h3>Atributos</h3>
+                <div class="attributes-grid">
+                    <div class="attribute-card">
+                        <div class="attribute-name">💪 Força</div>
+                        <div class="attribute-value" id="attr-strength">10</div>
+                    </div>
+                    <div class="attribute-card">
+                        <div class="attribute-name">👟 Destreza</div>
+                        <div class="attribute-value" id="attr-dexterity">10</div>
+                    </div>
+                    <div class="attribute-card">
+                        <div class="attribute-name">🧱 Constituição</div>
+                        <div class="attribute-value" id="attr-constitution">10</div>
+                    </div>
+                    <div class="attribute-card">
+                        <div class="attribute-name">🧠 Inteligência</div>
+                        <div class="attribute-value" id="attr-intelligence">10</div>
+                    </div>
+                    <div class="attribute-card">
+                        <div class="attribute-name">💡 Sabedoria</div>
+                        <div class="attribute-value" id="attr-wisdom">10</div>
+                    </div>
+                    <div class="attribute-card">
+                        <div class="attribute-name">🗣️ Carisma</div>
+                        <div class="attribute-value" id="attr-charisma">10</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Seção Vitalidade CORRIGIDA -->
+            <div class="sidebar-section">
+                <h3>Vitalidade</h3>
+                <div class="space-y-2">
+                    <div>
+                        <p class="flex justify-between items-center text-red-400 text-sm">
+                            <span>💖 HP</span>
+                            <span id="hp-value">100/100</span>
+                        </p>
+                        <div class="progress-container">
+                            <div id="hp-bar" class="progress-bar hp-bar" style="width: 100%"></div>
+                        </div>
+                    </div>
+                    <div>
+                        <p class="flex justify-between items-center text-blue-400 text-sm">
+                            <span>✨ MP</span>
+                            <span id="mp-value">50/50</span>
+                        </p>
+                        <div class="progress-container">
+                            <div id="mp-bar" class="progress-bar mp-bar" style="width: 100%"></div>
+                        </div>
+                    </div>
+                    <div>
+                        <p class="flex justify-between items-center text-green-400 text-sm">
+                            <span>🔋 Stamina</span>
+                            <span id="stamina-value">100/100</span>
+                        </p>
+                        <div class="progress-container">
+                            <div id="stamina-bar" class="progress-bar" style="width: 100%; background: linear-gradient(90deg, #2ecc71, #27ae60);"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- NOVO: Seção Equipamento -->
+            <div class="sidebar-section">
+                <h3>Equipamento</h3>
+                <div class="text-sm space-y-1">
+                    <p><strong>⚔️ Arma:</strong> <span id="equipped-weapon" class="text-gray-400 italic">Nenhuma</span></p>
+                    <p><strong>🛡️ Armadura:</strong> <span id="equipped-armor" class="text-gray-400 italic">Nenhuma</span></p>
+                    <p><strong>💍 Acessório:</strong> <span id="equipped-accessory" class="text-gray-400 italic">Nenhum</span></p>
+                </div>
+            </div>
+
+            <!-- NOVO: Seção Títulos e Reputação -->
+            <div class="sidebar-section">
+                <h3>Títulos e Reputação</h3>
+                <div class="text-sm space-y-2">
+                    <p><strong>Título:</strong> <span id="character-title" class="text-yellow-300">Nenhum</span></p>
+                    <div>
+                        <p class="flex justify-between items-center">
+                            <span class="text-blue-400">Fama</span>
+                            <span class="text-red-400">Infâmia</span>
+                        </p>
+                        <!-- ATUALIZADO: Barra de Reputação com Marcador -->
+                        <div class="reputation-bar-container">
+                            <div id="reputation-marker"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- NOVO: Seção de Estado do Mundo (Tempo) -->
+            <div class="sidebar-section">
+                <h3>Estado do Mundo</h3>
+                <div class="text-sm space-y-1">
+                    <p><strong>🗓️ Dia:</strong> <span id="time-day">1</span></p>
+                    <p><strong>⏰ Hora:</strong> <span id="time-hour">8:00</span></p>
+                    <p><strong>☀️ Período:</strong> <span id="time-period">Manhã</span></p>
+                </div>
+            </div>
+            <style>
+                #time-period { font-weight: bold; }
+            </style>
+
+            <!-- Seção Missões (NOVO) -->
+            <div class="sidebar-section"> 
+                <h3>Missões</h3> 
+                <ul id="quests-list-sidebar" class="text-sm space-y-2"> <!-- ID diferente para sidebar -->
+                    <li id="main-quest-sidebar" class="text-yellow-300">
+                        <span class="font-bold">M. Principal:</span> Nenhuma (Crie um Personagem)
+                    </li>
+                    <li id="side-quests-sidebar" class="text-gray-400">
+                        <span class="font-bold">M. Secundária:</span> Nenhuma
+                    </li>
+                </ul> 
+            </div>
+
+            <!-- Seção Habilidades -->
+            <div class="sidebar-section">
+                <h3>Habilidades</h3>
+                <ul id="skills-list" class="text-sm">
+                    <li class="text-gray-400 italic">Nenhuma habilidade aprendida</li>
+                </ul>
+            </div>
+
+            <!-- Seção Relacionamentos -->
+            <div class="sidebar-section">
+                <h3>Relacionamentos</h3>
+                <div id="relationships-list-sidebar"> <!-- ID diferente para sidebar -->
+                    <p class="text-gray-400 italic text-sm">Ainda não conheceu ninguém</p>
+                </div>
+            </div>
+
+            <!-- Seção Inventário -->
+            <div class="sidebar-section">
+                <h3>Inventário</h3>
+                <ul id="inventory-list" class="text-sm">
+                    <!-- Itens serão injetados aqui -->
+                    <li class="text-gray-400 italic">Inventário vazio</li>
+                </ul>            </div>
+
+            <!-- NOVO: Contêiner para o Jogo Phaser -->
+            <div class="sidebar-section">
+                <h3>Visualização</h3>
+                <div id="game-container" class="bg-black rounded-lg overflow-hidden mx-auto" style="width: 250px; height: 187.5px;">
+                    <!-- O jogo Phaser será renderizado aqui -->
+                </div>
+            </div>
+        </aside>
+
+        <button id="sidebar-toggle">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-6 h-6">
+                <path fill-rule="evenodd" d="M3 6.75A.75.75 0 0 1 3.75 6h16.5a.75.75 0 0 1 0 1.5H3.75A.75.75 0 0 1 3 6.75ZM3 12a.75.75 0 0 1 .75-.75h16.5a.75.75 0 0 1 0 1.5H3.75A.75.75 0 0 1 3 12Zm0 5.25a.75.75 0 0 1 .75-.75h16.5a.75.75 0 0 1 0 1.5H3.75a.75.75 0 0 1 0-1.5Z" clip-rule="evenodd" />
+            </svg>
+        </button>
+
+        <div class="flex flex-col flex-grow p-2 md:p-4 h-full">            <header id="main-header" class="text-center p-3 rounded-xl mb-2">
+                <h1 class="tracking-wider">Eldoria: Crônicas do Oráculo</h1>
+                <div class="text-xs mt-1">
+                    <p>Jogador: <span id="character-name-display" class="font-bold">...</span></p>
+                    <div class="header-buttons">
+                        <button id="audio-toggle-button" class="header-button bg-gray-700 hover:bg-gray-600 text-white">
+                            🎵 Música
+                        </button>
+                        <button id="reset-game-button" class="header-button bg-red-700 hover:bg-red-600 text-white">
+                            🔄 Novo
+                        </button>
+                        <button id="save-game-button" class="header-button bg-green-700 hover:bg-green-600 text-white">
+                            💾 Salvar
+                        </button>
+                        <button id="skills-modal-button" class="header-button bg-purple-700 hover:bg-purple-600 text-white">
+                            🌳 Skills
+                        </button>
+                        <!-- NOVOS BOTÕES MODAIS -->
+                        <button id="quests-modal-button" class="header-button bg-yellow-700 hover:bg-yellow-600 text-white">
+                            📜 Missões
+                        </button>
+
+                        <!-- NOVO: Menu Dropdown "Ações no Mundo" -->
+                        <div class="relative inline-block text-left">
+                            <button id="world-actions-button" class="header-button bg-blue-700 hover:bg-blue-600 text-white">
+                                🌍 Ações no Mundo
+                            </button>
+                            <div id="world-actions-dropdown" class="absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-primary-light ring-1 ring-black ring-opacity-5 z-50 hidden">
+                                <div class="py-1" role="menu" aria-orientation="vertical">
+                                    <a href="#" id="shop-modal-button" class="dropdown-item">🏪 Loja</a>
+                                    <a href="#" id="bounty-board-modal-button" class="dropdown-item">📜 Recompensas</a>
+                                    <a href="#" id="travel-modal-button" class="dropdown-item">🗺️ Viajar</a>
+                                    <a href="#" id="crafting-modal-button" class="dropdown-item">🛠️ Criar Itens</a>
+                                    <a href="#" id="bestiary-modal-button" class="dropdown-item">👹 Bestiário</a>
+                                    <a href="#" id="relationships-modal-button" class="dropdown-item">💖 Relações</a>
+                                </div>
+                            </div>
+                        </div>
+                        <style>
+                            .dropdown-item { display: block; padding: 0.5rem 1rem; font-size: 0.875rem; color: var(--text-light); }
+                            .dropdown-item:hover { background-color: var(--primary-medium); }
+                        </style>
+
+                        <button id="simular-combate-btn" class="header-button bg-red-900 hover:bg-red-800 text-white">
+                            ⚔️ Simular Combate
+                        </button>
+                        <!-- BOTÃO DE MENU REFEITO -->
+                        <button id="ingame-menu-button" class="header-button bg-gray-500 hover:bg-gray-400 text-black">
+                            ☰ Menu
+                        </button>
+                    </div>
+                </div>
+            </header>
+
+            <!-- NOVO: Interface de Posturas de Combate -->
+            <div id="combat-stances" class="hidden justify-center gap-2 mb-2">
+                <button id="stance-defensive" data-stance="defensive" class="stance-button">
+                    <span class="text-xl">🛡️</span>
+                    <div class="text-xs">Defensiva</div>
+                </button>
+                <button id="stance-balanced" data-stance="balanced" class="stance-button active">
+                    <span class="text-xl">⚖️</span>
+                    <div class="text-xs">Equilibrada</div>
+                </button>
+                <button id="stance-aggressive" data-stance="aggressive" class="stance-button">
+                    <span class="text-xl">⚔️</span>
+                    <div class="text-xs">Agressiva</div>
+                </button>
+            </div>
+            <style>
+                .stance-button { background-color: #3a445c; border: 2px solid transparent; padding: 0.25rem 0.75rem; border-radius: 8px; transition: all 0.2s; }
+                .stance-button:hover { background-color: #4a547c; }
+                .stance-button.active { 
+                    border-color: var(--accent-gold); 
+                    box-shadow: 0 0 8px rgba(212, 175, 55, 0.6);
+                    transform: scale(1.05);
+                }
+            </style>
+
+            <!-- Interface de Combate -->
+            <div id="combat-ui" class="hidden mb-3 p-3 rounded-xl bg-gray-800 border-2 border-red-600">
+                <div class="text-center mb-3">
+                    <h3 class="text-lg font-bold text-red-400 mb-1" id="enemy-name">Inimigo</h3>
+                    <!-- Barra de vida do inimigo (NOVO) -->
+                    <div class="progress-container mx-auto max-w-sm mb-2 relative">
+                        <!-- Ponto de referência para dano flutuante -->
+                        <div id="enemy-hp-anchor" class="absolute w-full h-full"></div> 
+                        <div id="enemy-hp-bar" class="progress-bar hp-bar" style="width: 100%;"></div>
+                    </div>
+                    <p class="text-xs text-gray-300" id="enemy-level">Nível: 1</p>
+                     <!-- NOVO: Efeitos de Status do Inimigo -->
+                    <div id="enemy-status-effects" class="text-xs mt-1 flex justify-center gap-2"></div>
+                </div>
+                
+                <!-- NOVO: Barra de Foco do Jogador -->
+                <div class="mt-2">
+                    <p class="flex justify-center items-center text-orange-400 text-xs font-bold">
+                        <span>💥 Foco</span>
+                    </p>
+                    <div class="progress-container mx-auto max-w-xs">
+                        <div id="focus-bar" class="progress-bar focus-bar" style="width: 0%;"></div>
+                    </div>
+                </div>
+                <!-- Fim da Barra de Foco -->
+
+                <div class="combat-actions">
+                    <button id="attack-btn" class="combat-button">
+                        ⚔️ Atacar (Físico)
+                    </button>
+                    <button id="skill-btn" class="skill-button">
+                        🎯 Habilidade (MP/STA)
+                    </button>
+                    <button id="item-btn" class="item-button">
+                        🧪 Itens
+                    </button>
+                     <button id="defend-btn" class="bg-gray-600 text-white py-2 px-4 rounded-lg font-bold text-sm"> <!-- Botão Defender Adicionado -->
+                        🛡️ Defender
+                    </button>
+                    <button id="flee-btn" class="bg-yellow-600 text-white py-2 px-4 rounded-lg font-bold text-sm">
+                        🏃 Fugir
+                    </button>
+                    <!-- NOVO: Botão Finalizador -->
+                    <button id="finisher-btn" class="hidden bg-gradient-to-r from-red-500 to-yellow-500 text-white py-2 px-4 rounded-lg font-bold text-sm col-span-2 animate-pulse">
+                        💥 FINALIZADOR 💥
+                    </button>
+                </div>
+                 <!-- NOVO: Efeitos de Status do Jogador -->
+                <div id="player-status-effects" class="text-xs mt-2 flex justify-center gap-2"></div>
+
+                <!-- Seção de Habilidades Ativas (NOVA ESTRUTURA PARA SER CLICÁVEL) -->
+                <div class="mt-3 hidden" id="skills-section">
+                    <h4 class="text-base font-bold text-purple-400 mb-1">🔮 Habilidades Ativas</h4>
+                    <div class="skills-grid" id="skills-grid">
+                        <!-- Habilidades ativas serão injetadas aqui -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Modal de Criação de Personagem -->
+            <div id="character-setup" class="fixed inset-0 bg-black bg-opacity-90 z-50 flex items-center justify-center p-2">
+                <div class="modal-content p-4 rounded-xl w-full max-w-md">
+                    <div class="text-center mb-4">
+                        <h2 class="text-2xl font-bold mb-1" style="font-family: 'Cinzel', serif; color: var(--accent-gold);">Crie Seu Personagem</h2>
+                        <p class="text-sm text-gray-300">Escolha seu modo de jogo e personagem</p>
+                    </div>
+                    
+                    <!-- Seleção de Modo -->
+                    <div class="creation-section">
+                        <h3 class="creation-section-title">Modo de Jogo</h3>
+                        <div class="game-mode-buttons">
+                            <div class="mode-button singleplayer-mode active" id="setup-singleplayer-btn">
+                                🎯 Singleplayer
+                            </div>
+                            <div class="mode-button multiplayer-mode" id="setup-multiplayer-btn">
+                                🎮 Multiplayer
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Seleção de Modo de História -->
+                    <div class="creation-section">
+                        <h3 class="creation-section-title">Modo de História</h3>
+                        <div class="story-mode-selector">
+                            <div class="story-mode-card selected" data-mode="sandbox">
+                                <div class="story-mode-title">🏞️ Sandbox Livre</div>
+                                <div class="story-mode-desc">Explore um mundo aberto com total liberdade para criar sua própria história. Sem limites para sua criatividade!</div>
+                            </div>
+                            <div class="story-mode-card" data-mode="narrative">
+                                <div class="story-mode-title">📖 Narrativa Guiada</div>
+                                <div class="story-mode-desc">Siga uma história complexa e bem estruturada. O input de texto será desabilitado, **use os botões de escolha** (A, B, C...).</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="space-y-4">
+                        <!-- Nome e Sexo do Personagem (MODIFICADO) -->
+                        <div class="creation-section">
+                            <h3 class="creation-section-title">Detalhes do Personagem</h3>
+                            <div class="space-y-2">
+                                <input type="text" id="char-name-input" placeholder="Ex: Corvo, o Bardo" class="w-full p-2 rounded-lg bg-gray-800 text-white border border-gray-600 text-sm">
+                                <div class="grid grid-cols-1 gap-2"> 
+                                    <!-- Apenas o Sexo (Idade removida) -->
+                                    <select id="char-sex-input" class="p-2 rounded-lg bg-gray-800 text-white border border-gray-600 text-sm">
+                                        <option value="">Escolha o Sexo</option>
+                                        <option value="Masculino">Masculino</option>
+                                        <option value="Feminino">Feminino</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Escolha da Classe (MODIFICADO para imagens) -->
+                        <div class="creation-section">
+                            <h3 class="creation-section-title">Escolha sua Classe</h3>
+                            <!-- NOVO: Área de Descrição da Classe -->
+                            <div id="class-description-area" class="p-2 mb-3 text-center text-sm text-gray-300 bg-primary-dark rounded-lg min-h-[50px]">
+                                <p id="class-description-text" class="italic">Passe o mouse sobre uma classe para ver a descrição.</p>
+                            </div>
+                            <style>
+                                #class-description-area { border: 1px solid rgba(212, 175, 55, 0.2); }
+                            </style>
+                            <div class="class-grid">
+                                <div class="class-card" data-class="Guerreiro">
+                                    <img src="https://i.imgur.com/ArXSdnS_d.webp?maxwidth=760&fidelity=grand" class="class-icon-img mx-auto mb-1 rounded" alt="Guerreiro">
+                                    <div class="class-name">Guerreiro</div>
+                                    <div class="class-desc">Combate corpo a corpo</div>
+                                </div>
+                                <div class="class-card" data-class="Mago">
+                                    <img src="https://i.imgur.com/aAKaaUz_d.webp?maxwidth=760&fidelity=grand" class="class-icon-img mx-auto mb-1 rounded" alt="Mago">
+                                    <div class="class-name">Mago</div>
+                                    <div class="class-desc">Artes arcanas</div>
+                                </div>
+                                <div class="class-card" data-class="Arqueiro">
+                                    <img src="https://i.imgur.com/1WG7eFg_d.webp?maxwidth=760&fidelity=grand" class="class-icon-img mx-auto mb-1 rounded" alt="Arqueiro">
+                                    <div class="class-name">Arqueiro</div>
+                                    <div class="class-desc">Ataques à distância</div>
+                                </div>
+                                <div class="class-card" data-class="Ladino">
+                                    <img src="https://i.imgur.com/y9mm7Cj_d.webp?maxwidth=760&fidelity=grand" class="class-icon-img mx-auto mb-1 rounded" alt="Ladino">
+                                    <div class="class-name">Ladino</div>
+                                    <div class="class-desc">Furtividade</div>
+                                </div>
+                                <div class="class-card" data-class="Paladino">
+                                    <img src="https://i.imgur.com/MqvFBZR_d.webp?maxwidth=760&fidelity=grand" class="class-icon-img mx-auto mb-1 rounded" alt="Paladino">
+                                    <div class="class-name">Paladino</div>
+                                    <div class="class-desc">Poderes divinos</div>
+                                </div>
+                                <div class="class-card" data-class="Bardo">
+                                    <img src="https://i.imgur.com/ZBECieC_d.webp?maxwidth=760&fidelity=grand" class="class-icon-img mx-auto mb-1 rounded" alt="Bardo">
+                                    <div class="class-name">Bardo</div>
+                                    <div class="class-desc">Magia musical</div>
+                                </div>
+                                <div class="class-card" data-class="Druida">
+                                    <img src="https://i.imgur.com/ngg86Ga_d.webp?maxwidth=760&fidelity=grand" class="class-icon-img mx-auto mb-1 rounded" alt="Druida">
+                                    <div class="class-name">Druida</div>
+                                    <div class="class-desc">Natureza</div>
+                                </div>
+                                <div class="class-card" data-class="Necromante">
+                                    <img src="https://i.imgur.com/UPl1a5R_d.webp?maxwidth=760&fidelity=grand" class="class-icon-img mx-auto mb-1 rounded" alt="Necromante">
+                                    <div class="class-name">Necromante</div>
+                                    <div class="class-desc">Artes das trevas</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Distribuição de Atributos (PONTOS REMOVIDOS) -->
+                        <div class="creation-section">
+                            <h3 class="creation-section-title">Atributos do Personagem</h3>
+                            <p class="text-sm text-gray-400 mb-3">Atributos fixados pela classe. Eles guiam o poder das suas ações.</p>
+                            <div class="attributes-grid">
+                                <div class="attribute-card">
+                                    <div class="attribute-name">💪 Força</div>
+                                    <div class="attribute-value" id="create-strength">10</div>
+                                    <div class="attribute-desc">Ataque físico</div>
+                                </div>
+                                <div class="attribute-card">
+                                    <div class="attribute-name">👟 Destreza</div>
+                                    <div class="attribute-value" id="create-dexterity">10</div>
+                                    <div class="attribute-desc">Precisão e agilidade</div>
+                                </div>
+                                <div class="attribute-card">
+                                    <div class="attribute-name">🧱 Constituição</div>
+                                    <div class="attribute-value" id="create-constitution">10</div>
+                                    <div class="attribute-desc">Vida e resistência</div>
+                                </div>
+                                <div class="attribute-card">
+                                    <div class="attribute-name">🧠 Inteligência</div>
+                                    <div class="attribute-value" id="create-intelligence">10</div>
+                                    <div class="attribute-desc">Magia e conhecimento</div>
+                                </div>
+                                <div class="attribute-card">
+                                    <div class="attribute-name">💡 Sabedoria</div>
+                                    <div class="attribute-value" id="create-wisdom">10</div>
+                                    <div class="attribute-desc">Percepção e intuição</div>
+                                </div>
+                                <div class="attribute-card">
+                                    <div class="attribute-name">🗣️ Carisma</div>
+                                    <div class="attribute-value" id="create-charisma">10</div>
+                                    <div class="attribute-desc">Persuasão e liderança</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="border-t border-gray-600 mt-4 pt-3 text-center">
+                        <button id="save-character-button" class="w-full font-bold py-2 rounded-lg bg-yellow-600 hover:bg-yellow-700 text-white text-base">
+                            Começar Aventura!
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- NOVO: MODAL DO MENU DO JOGO -->
+            <div id="game-menu-modal" class="fixed inset-0 bg-black bg-opacity-90 z-[120] flex items-center justify-center p-2 hidden">
+                <div class="modal-content p-6 rounded-xl w-full max-w-sm text-center">
+                    <h2 class="text-3xl font-bold mb-8" style="font-family: 'Cinzel', serif; color: var(--accent-gold);">Menu</h2>
+                    <div class="space-y-4 flex flex-col items-center">
+                        <button id="menu-save-game-btn" class="main-menu-button w-full">💾 Salvar Jogo</button>
+                        <button id="menu-load-game-btn" class="main-menu-button w-full">📂 Carregar Jogo</button>
+                        <button id="menu-settings-btn" class="main-menu-button w-full">⚙️ Configurações</button>
+                        <button id="menu-main-menu-btn" class="main-menu-button w-full bg-red-800 hover:bg-red-700">🚪 Voltar ao Menu Principal</button>
+                    </div>
+                    <div class="mt-8">
+                        <button id="close-game-menu-btn" class="text-white bg-gray-600 hover:bg-gray-700 rounded-full p-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                            <span class="sr-only">Fechar Menu</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+
+            <!-- Modal de Habilidades -->
+            <div id="skills-modal" class="fixed inset-0 bg-black bg-opacity-90 z-70 flex items-center justify-center p-2 hidden">
+                <div class="modal-content p-4 rounded-xl w-full max-w-md">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-2xl font-bold" style="font-family: 'Cinzel', serif; color: var(--accent-gold);">🌳 Habilidades</h2>
+                        <button id="close-skills-modal" class="text-white bg-red-600 hover:bg-red-700 rounded-full p-1.5">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"> <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /> </svg>
+                        </button>
+                    </div>
+                    <div id="skill-tree-content" class="space-y-2"></div>
+                    <div class="border-t border-gray-600 mt-4 pt-3 text-center">
+                        <p class="text-sm text-gray-400">Pontos Disponíveis: <span id="skill-points-available" class="font-bold text-yellow-300">0</span></p>
+                    </div>
+                </div>
+            </div>
+
+             <!-- Modal de Missões (NOVO) -->
+            <div id="quests-modal" class="fixed inset-0 bg-black bg-opacity-90 z-70 flex items-center justify-center p-2 hidden">
+                <div class="modal-content p-4 rounded-xl w-full max-w-md">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-2xl font-bold" style="font-family: 'Cinzel', serif; color: var(--accent-gold);">📜 Missões</h2>
+                        <button id="close-quests-modal" class="text-white bg-red-600 hover:bg-red-700 rounded-full p-1.5">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"> <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /> </svg>
+                        </button>
+                    </div>
+                    <div id="quests-modal-content" class="space-y-2"></div>
+                </div>
+            </div>
+
+            <!-- Modal de Relações (NOVO) -->
+            <div id="relationships-modal" class="fixed inset-0 bg-black bg-opacity-90 z-70 flex items-center justify-center p-2 hidden">
+                <div class="modal-content p-4 rounded-xl w-full max-w-md">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-2xl font-bold" style="font-family: 'Cinzel', serif; color: var(--accent-gold);">💖 Relações</h2>
+                        <button id="close-relationships-modal" class="text-white bg-red-600 hover:bg-red-700 rounded-full p-1.5">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"> <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /> </svg>
+                        </button>
+                    </div>
+                    <div id="relationships-modal-content" class="space-y-2"></div>
+
+                    <!-- NOVO: Modal para Escrever Carta -->
+                    <div id="letter-modal" class="hidden mt-4 p-4 bg-primary-dark rounded-lg border border-gray-600">
+                        <h3 id="letter-recipient" class="creation-section-title">Escrever para...</h3>
+                        <textarea id="letter-textarea" class="w-full p-2 rounded-lg bg-gray-800 text-white border border-gray-600 text-sm" rows="5" placeholder="Escreva sua mensagem aqui..."></textarea>
+                        <div class="flex justify-end gap-2 mt-2">
+                            <button id="cancel-letter-btn" class="px-4 py-2 rounded-lg bg-gray-600 hover:bg-gray-700 text-white text-sm">Cancelar</button>
+                            <button id="send-letter-btn" class="px-4 py-2 rounded-lg bg-yellow-600 hover:bg-yellow-700 text-white text-sm">Enviar Carta</button>
+                        </div>
+                    </div>
+                    <!-- Fim do Modal de Carta -->
+
+                </div>
+            </div>
+
+
+            <!-- Modal de Itens em Combate -->
+            <div id="combat-items-modal" class="fixed inset-0 bg-black bg-opacity-90 z-70 flex items-center justify-center p-2 hidden">
+                <div class="modal-content p-4 rounded-xl w-full max-w-sm">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-xl font-bold" style="font-family: 'Cinzel', serif; color: var(--accent-gold);">🧪 Usar Item</h2>
+                        <button id="close-items-modal" class="text-white bg-red-600 hover:bg-red-700 rounded-full p-1">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"> <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /> </svg>
+                        </button>
+                    </div>
+                    <div class="item-list-modal" id="combat-items-list"></div>
+                    <p class="text-xs text-gray-500 mt-3">Usar um item encerra o seu turno.</p>
+                </div>
+            </div>
+
+            <!-- Modal da Loja (NOVO - ESTAVA FALTANDO) -->
+            <div id="shop-modal" class="modal-container hidden fixed inset-0 bg-black bg-opacity-90 z-[80] flex items-center justify-center p-2">
+                <div class="modal-content p-4 rounded-xl w-full">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-2xl font-bold" style="font-family: 'Cinzel', serif; color: var(--accent-gold);">🏪 Loja</h2>
+                        <button id="close-shop-modal" class="text-white bg-red-600 hover:bg-red-700 rounded-full p-1.5">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"> <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /> </svg>
+                        </button>
+                    </div>
+                    <div id="shop-items-list" class="space-y-2"></div>
+                </div>
+            </div>
+
+            <!-- Modal do Mural de Recompensas (NOVO - ESTAVA FALTANDO) -->
+            <div id="bounty-board-modal" class="modal-container hidden fixed inset-0 bg-black bg-opacity-90 z-[80] flex items-center justify-center p-2">
+                <div class="modal-content p-4 rounded-xl w-full">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-2xl font-bold" style="font-family: 'Cinzel', serif; color: var(--accent-gold);">📜 Mural de Recompensas</h2>
+                        <button id="close-bounty-board-modal" class="text-white bg-red-600 hover:bg-red-700 rounded-full p-1.5">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"> <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /> </svg>
+                        </button>
+                    </div>
+                    <div id="bounty-list" class="space-y-4"></div>
+                </div>
+            </div>
+
+            <!-- NOVO: Modal de Viagem -->
+            <div id="travel-modal" class="modal-container hidden fixed inset-0 bg-black bg-opacity-90 z-[80] flex items-center justify-center p-2">
+                <div class="modal-content p-4 rounded-xl w-full max-w-md">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-2xl font-bold" style="font-family: 'Cinzel', serif; color: var(--accent-gold);">🗺️ Viajar Para...</h2>
+                        <button id="close-travel-modal" class="text-white bg-red-600 hover:bg-red-700 rounded-full p-1.5">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"> <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /> </svg>
+                        </button>
+                    </div>
+                    <div id="travel-destinations-list" class="space-y-2">
+                        <!-- Destinos de viagem (missões) serão inseridos aqui -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- NOVO: Modal do Bestiário -->
+            <div id="bestiary-modal" class="modal-container hidden fixed inset-0 bg-black bg-opacity-90 z-[80] flex items-center justify-center p-2">
+                <div class="modal-content p-4 rounded-xl w-full max-w-lg">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-2xl font-bold" style="font-family: 'Cinzel', serif; color: var(--accent-gold);">👹 Bestiário</h2>
+                        <button id="close-bestiary-modal" class="text-white bg-red-600 hover:bg-red-700 rounded-full p-1.5">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"> <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /> </svg>
+                        </button>
+                    </div>
+                    <div id="bestiary-content" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div id="bestiary-list" class="space-y-2 pr-2 border-r border-gray-600 overflow-y-auto max-h-[60vh]"></div>
+                        <div id="bestiary-details" class="p-2"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- NOVO: Modal de Crafting -->
+            <div id="crafting-modal" class="modal-container hidden fixed inset-0 bg-black bg-opacity-90 z-[80] flex items-center justify-center p-2">
+                <div class="modal-content p-4 rounded-xl w-full max-w-lg">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-2xl font-bold" style="font-family: 'Cinzel', serif; color: var(--accent-gold);">🛠️ Criar Itens</h2>
+                        <button id="close-crafting-modal" class="text-white bg-red-600 hover:bg-red-700 rounded-full p-1.5">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"> <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /> </svg>
+                        </button>
+                    </div>
+                    <div id="crafting-recipes-list" class="space-y-4">
+                        <!-- Receitas de crafting serão inseridas aqui -->
+                    </div>
+                </div>
+            </div>
+
+
+            <main class="flex flex-col flex-grow min-h-0">
+                <div id="chat-area" class="flex-grow p-3 rounded-xl overflow-y-auto mb-2">
+                    <div class="text-center text-gray-500 italic py-8">
+                        Crie seu personagem para começar a aventura...
+                    </div>
+                </div>
+                
+                <!-- ÁREA DE ESCOLHAS (NOVO) -->
+                <div id="choice-buttons-area" class="hidden">
+                    <!-- Botões A, B, C, D serão injetados aqui -->
+                </div>
+            </main>
+
+            <!-- ÁREA DE INPUT CORRIGIDA -->
+            <section class="input-section">
+                <input type="text" id="user-input" placeholder="Digite sua ação..." class="flex-grow p-3 rounded-xl bg-gray-800 text-white border border-gray-600" disabled>
+                <button id="send-button" class="font-bold rounded-xl" disabled>
+                    Enviar
+                </button>
+            </section>
+        </div> <!-- Fim do flex-grow -->
+    </div>
+
+    <!-- 
+    =============================================
+    SCRIPT PRINCIPAL DO JOGO
+    =============================================
+    -->
+    <script src="https://cdn.jsdelivr.net/npm/phaser@3.55.2/dist/phaser.min.js"></script>
+    <script src="data.js"></script>
+    <script src="game.js"></script><script src="phaser_game.js"></script>
+</body>
+</html>
