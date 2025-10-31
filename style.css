@@ -272,6 +272,31 @@ body {
     white-space: nowrap;
 }
 
+/* ============================================= */
+/* NOVA BARRA DE AÇÕES PRINCIPAL                 */
+/* ============================================= */
+.action-bar-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background-color: var(--primary-light);
+    color: var(--text-light);
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    font-weight: bold;
+    font-size: 0.875rem;
+    border: 1px solid transparent;
+    transition: all 0.2s ease;
+}
+
+.action-bar-button:hover {
+    background-color: var(--primary-medium);
+    border-color: var(--accent-gold);
+}
+
+.dropdown-menu {
+    @apply absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-primary-dark ring-1 ring-accent-gold ring-opacity-50 z-50 hidden;
+}
 /* Combat UI */
 #combat-ui {
     transition: all 0.3s ease;
@@ -841,16 +866,5 @@ body {
     left: 0; top: 0; height: 100%;
     background-color: var(--accent-blue);
     transition: width 0.5s ease;
-}
-.dropdown-item {
-    display: block;
-    padding: 0.5rem 1rem;
-    font-size: 0.875rem;
-    color: var(--text-light); /* Garante que o texto seja claro */
-    transition: background-color 0.2s;
-}
-
-.dropdown-item:hover {
-    background-color: var(--primary-medium); /* Fundo ao passar o mouse */
 }
 }
