@@ -49,12 +49,16 @@ class BootScene extends Phaser.Scene {
 // --- CONFIGURAÇÃO DO JOGO (USA A CENA DEFINIDA ACIMA) ---
 const config = {
     type: Phaser.AUTO,
-    width:  'game-container',
+    width: 250,   // Largura ajustada para a sidebar
+    height: 187.5, // Altura ajustada para a sidebar
+    parent: 'game-container',
     scene: [BootScene] // Agora BootScene já existe!
 };
 
-//window.addEventListener('load', () => {
-ig);
+// NOVO: Garante que o jogo Phaser só inicie depois que a página inteira carregar
+window.addEventListener('load', () => {
+    // Cria a instância principal do jogo
+    const game = new Phaser.Game(config);
 });
 
 console.log("phaser_game.js carregado. Iniciando Phaser...");
