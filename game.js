@@ -290,6 +290,7 @@ function saveCharacterProfile() {
     updateEquipmentUI(); // NOVO
     updateReputationUI(); // NOVO
     updateChatInputStatus();
+    updateObjectiveTracker(); // NOVO
     
     document.getElementById('chat-area').innerHTML = '';
     startInitialStory();
@@ -1815,6 +1816,24 @@ function acceptBounty(questId) {
     updateQuestsUI();
 }
 
+// NOVO: Função para atualizar o painel de objetivo
+function updateObjectiveTracker() {
+    const panel = document.getElementById('scene-panel');
+    const tracker = document.getElementById('objective-tracker');
+    if (!panel || !tracker) return;
+
+    const trackedQuest = sideQuests.find(q => q.tracked) || mainQuest;
+
+    if (trackedQuest) {
+        panel.classList.remove('hidden');
+        panel.classList.add('flex');
+        tracker.innerHTML = `
+            <h3>Objetivo Atual</h3>
+            <p class="font-bold text-white">${trackedQuest.title}</p>
+            <p>${trackedQuest.description}</p>`;
+    }
+}
+
 // NOVO: Função para rastrear uma missão
 function trackQuest(questId) {
     if (!localCharacterProfile) return;
@@ -1833,6 +1852,7 @@ function trackQuest(questId) {
 
     // Atualiza a UI para refletir a mudança
     updateQuestsUI();
+    updateObjectiveTracker();
 }
 
 // --- NOVO: Funções de Viagem ---
@@ -1985,6 +2005,7 @@ function updateUIFromSave() {
      updateRelationshipsUI(); 
      updateEquipmentUI(); // NOVO
      updateReputationUI(); // NOVO
+     updateObjectiveTracker(); // NOVO
      updateTimeUI(); // NOVO
      if (typeof updateDebugPanel === 'function') {
         updateDebugPanel(); // NOVO
@@ -2041,10 +2062,46 @@ function resetGame() {
         updateReputationUI();
         updateChatInputStatus();
         updateTimeUI(); // NOVO
+        updateObjectiveTracker(); // NOVO
         if (typeof updateDebugPanel === 'function') {
             updateDebugPanel(); // NOVO
         }
     }
+}
+
+// =============================================
+// NOVO: SISTEMA DE DEBUG
+// =============================================
+let isDebugPanelVisible = false;
+
+function toggleDebugPanel() {
+    const panel = document.getElementById('debug-panel');
+    if (!panel) return;
+
+    isDebugPanelVisible = !isDebugPanelVisible;
+    if (isDebugPanelVisible) {
+        panel.classList.remove('hidden');
+        updateDebugPanel(); // Atualiza o conteúdo ao abrir
+    } else {
+        panel.classList.add('hidden');
+    }
+}
+
+function updateDebugPanel() {
+    if (!isDebugPanelVisible) return;
+
+    const content = document.getElementById('debug-content');
+    if (!content) return;
+
+    content.innerHTML = `
+        <p><strong>Modo História:</strong> ${storyMode}</p>
+        <p><strong>Em Combate:</strong> ${isInCombat}</p>
+        <p><strong>Ameaça Iminente:</strong> ${preparedEnemy ? preparedEnemy.name : 'Nenhuma'}</p>
+        <p><strong>Foco:</strong> ${localCharacterProfile?.focus || 0}</p>
+        <p><strong>Hora:</strong> Dia ${gameTime.day}, ${Math.floor(gameTime.hour)}h</p>
+        <p class="mt-2"><strong>Memória da Cena:</strong></p>
+        <p class="italic text-gray-400">${currentSceneDescription}</p>
+    `;
 }
 
 function updateTimeUI() {
