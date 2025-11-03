@@ -6,8 +6,9 @@
     <title>Eldoria: Crônicas do Oráculo</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Adiciona Tone.js -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script><link rel="stylesheet" href="style.css">
-    <!--<style>        /* Estilos CSS Inalterados... */
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
+    <link rel="stylesheet" href="style.css">
+    <!--<style>
         @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400..900&family=Merriweather:ital,wght@0,300;0,400;0,700;0,900;1,300;1,400;1,700;1,900&display=swap');
         
         :root {
@@ -55,22 +56,6 @@
             font-size: 0.8rem;
         }
 
-        /* Chat area styling */
-        #chat-area { 
-            background-color: #1e1a1a;
-            color: var(--text-light); 
-            border: 2px solid #3a2e2a;
-            box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.5);
-            overflow-y: auto;
-            height: 50vh; /* Ajuste para caber botões de escolha */
-        }
-        
-        @media (min-width: 768px) {
-            #chat-area {
-                height: 60vh; /* Ajuste para caber botões de escolha */
-            }
-        }
-        
         .message-box { 
             border-radius: 12px; 
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3); 
@@ -854,7 +839,7 @@
     <!-- NOVO: MENU PRINCIPAL -->
     <!-- ============================================= -->
     <div id="main-menu" class="fixed inset-0 bg-primary-dark z-[100] flex flex-col items-center justify-center p-4 text-center">
-        <div class="absolute inset-0 bg-cover bg-center opacity-20" style="background-image: url('https://i.imgur.com/M2oGdpo.jpg');"></div>
+        <div class="absolute inset-0 bg-cover bg-center opacity-20" style="background-image: url('assets/sprites/M2oGdpo.png');"></div>
         <div class="relative z-10">
             <h1 class="text-5xl md:text-7xl font-bold text-accent-gold mb-4" style="font-family: 'Cinzel', serif; text-shadow: 0 0 15px rgba(212, 175, 55, 0.7);">Eldoria</h1>
             <p class="text-xl md:text-2xl text-text-dim mb-12" style="font-family: 'Merriweather', serif;">Crônicas do Oráculo</p>
@@ -1113,7 +1098,7 @@
             </svg>
         </button>
 
-        <div class="flex flex-col flex-grow p-2 md:p-4 h-full">
+        <div class="flex flex-col flex-grow p-2 md:p-4 min-h-0">
             <header id="main-header" class="text-center p-3 rounded-xl mb-2">
                 <h1 class="tracking-wider">Eldoria: Crônicas do Oráculo</h1>
                 <div class="text-xs mt-1">
@@ -1306,42 +1291,42 @@
                             </style>
                             <div class="class-grid">
                                 <div class="class-card" data-class="Guerreiro">
-                                    <img src="https://i.imgur.com/ArXSdnS_d.webp?maxwidth=760&fidelity=grand" class="class-icon-img mx-auto mb-1 rounded" alt="Guerreiro">
+                                    <img src="assets/sprites/guerreiro_masculino.png" class="class-icon-img mx-auto mb-1 rounded" alt="Guerreiro">
                                     <div class="class-name">Guerreiro</div>
                                     <div class="class-desc">Combate corpo a corpo</div>
                                 </div>
                                 <div class="class-card" data-class="Mago">
-                                    <img src="https://i.imgur.com/aAKaaUz_d.webp?maxwidth=760&fidelity=grand" class="class-icon-img mx-auto mb-1 rounded" alt="Mago">
+                                    <img src="assets/sprites/mago_masculino.png" class="class-icon-img mx-auto mb-1 rounded" alt="Mago">
                                     <div class="class-name">Mago</div>
                                     <div class="class-desc">Artes arcanas</div>
                                 </div>
                                 <div class="class-card" data-class="Arqueiro">
-                                    <img src="https://i.imgur.com/1WG7eFg_d.webp?maxwidth=760&fidelity=grand" class="class-icon-img mx-auto mb-1 rounded" alt="Arqueiro">
+                                    <img src="assets/sprites/arqueiro_masculino.png" class="class-icon-img mx-auto mb-1 rounded" alt="Arqueiro">
                                     <div class="class-name">Arqueiro</div>
                                     <div class="class-desc">Ataques à distância</div>
                                 </div>
                                 <div class="class-card" data-class="Ladino">
-                                    <img src="https://i.imgur.com/y9mm7Cj_d.webp?maxwidth=760&fidelity=grand" class="class-icon-img mx-auto mb-1 rounded" alt="Ladino">
+                                    <img src="assets/sprites/ladino_masculino.png" class="class-icon-img mx-auto mb-1 rounded" alt="Ladino">
                                     <div class="class-name">Ladino</div>
                                     <div class="class-desc">Furtividade</div>
                                 </div>
                                 <div class="class-card" data-class="Paladino">
-                                    <img src="https://i.imgur.com/MqvFBZR_d.webp?maxwidth=760&fidelity=grand" class="class-icon-img mx-auto mb-1 rounded" alt="Paladino">
+                                    <img src="assets/sprites/paladino_masculino.png" class="class-icon-img mx-auto mb-1 rounded" alt="Paladino">
                                     <div class="class-name">Paladino</div>
                                     <div class="class-desc">Poderes divinos</div>
                                 </div>
                                 <div class="class-card" data-class="Bardo">
-                                    <img src="https://i.imgur.com/ZBECieC_d.webp?maxwidth=760&fidelity=grand" class="class-icon-img mx-auto mb-1 rounded" alt="Bardo">
+                                    <img src="assets/sprites/bardo_masculino.png" class="class-icon-img mx-auto mb-1 rounded" alt="Bardo">
                                     <div class="class-name">Bardo</div>
                                     <div class="class-desc">Magia musical</div>
                                 </div>
                                 <div class="class-card" data-class="Druida">
-                                    <img src="https://i.imgur.com/ngg86Ga_d.webp?maxwidth=760&fidelity=grand" class="class-icon-img mx-auto mb-1 rounded" alt="Druida">
+                                    <img src="assets/sprites/druida_masculino.png" class="class-icon-img mx-auto mb-1 rounded" alt="Druida">
                                     <div class="class-name">Druida</div>
                                     <div class="class-desc">Natureza</div>
                                 </div>
                                 <div class="class-card" data-class="Necromante">
-                                    <img src="https://i.imgur.com/UPl1a5R_d.webp?maxwidth=760&fidelity=grand" class="class-icon-img mx-auto mb-1 rounded" alt="Necromante">
+                                    <img src="assets/sprites/necromante_masculino.png" class="class-icon-img mx-auto mb-1 rounded" alt="Necromante">
                                     <div class="class-name">Necromante</div>
                                     <div class="class-desc">Artes das trevas</div>
                                 </div>
@@ -1561,27 +1546,27 @@
 
 
             <main class="flex flex-col flex-grow min-h-0">
-                <div id="chat-area" class="flex-grow p-3 rounded-xl overflow-y-auto">
+                <div id="chat-area" class="flex-grow p-3 rounded-xl overflow-y-auto shrink">
                     <div class="text-center text-gray-500 italic py-8">
                         Crie seu personagem para começar a aventura...
                     </div>
                 </div>
-
-                <!-- ============================================= -->
-                <!-- NOVA BARRA DE AÇÕES INFERIOR (OTIMIZADA PARA MOBILE) -->
-                <!-- ============================================= -->
-                <div id="bottom-action-bar">
-                    <!-- Área de Escolhas (A, B, C, D) -->
-                    <div id="choice-buttons-area" class="hidden"></div>
-                    <!-- Área de Input de Texto -->
-                    <section id="input-area" class="input-section">
-                        <input type="text" id="user-input" placeholder="Digite sua ação..." class="flex-grow p-3 rounded-xl bg-gray-800 text-white border border-gray-600" disabled>
-                        <button id="send-button" class="font-bold rounded-xl" disabled>
-                            Enviar
-                        </button>
-                    </section>
-                </div>
             </main>
+
+            <!-- ============================================= -->
+            <!-- NOVA BARRA DE AÇÕES INFERIOR (OTIMIZADA PARA MOBILE) -->
+            <!-- ============================================= -->
+            <div id="bottom-action-bar">
+                <!-- Área de Escolhas (A, B, C, D) -->
+                <div id="choice-buttons-area" class="hidden"></div>
+                <!-- Área de Input de Texto -->
+                <section id="input-area" class="input-section">
+                <input type="text" id="user-input" placeholder="Digite sua ação..." class="flex-grow p-3 rounded-xl bg-gray-800 text-white border border-gray-600" disabled>
+                <button id="send-button" class="font-bold rounded-xl" disabled>
+                    Enviar
+                </button>
+                </section>
+            </div>
         </div> <!-- Fim do flex-grow -->
     </div>
 
@@ -1598,7 +1583,6 @@
     SCRIPT PRINCIPAL DO JOGO
     =============================================
     -->
-    <script src="data.js"></script>
     <script src="game.js"></script>
 </body>
 </html>
