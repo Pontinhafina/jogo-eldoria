@@ -1,0 +1,114 @@
+{
+    "Guerreiro": {
+        "description": "Mestre do combate corpo a corpo. Usa força bruta e resistência para dominar o campo de batalha.",
+        "attributes": { "strength": 16, "dexterity": 12, "constitution": 15, "intelligence": 8, "wisdom": 10, "charisma": 9 },
+        "vitality": { "hp": 120, "mp": 30, "stamina": 100 },
+        "images": { "Masculino": "assets/sprites/guerreiro_masculino.png", "Feminino": "assets/sprites/guerreira_feminina.png" },
+        "skills": {
+            "1": { "name": "🛡️ Investida Leve", "cost": 5, "resource": "STA", "type": "physical", "mainAttribute": "strength", "emoji": "🛡️" },
+            "2": { "name": "🔨 Golpe Poderoso", "cost": 10, "resource": "STA", "type": "physical", "mainAttribute": "strength", "emoji": "🔨" },
+            "4": { "name": "🧱 Defesa Total", "cost": 0, "resource": "STA", "type": "passive", "mainAttribute": "constitution", "emoji": "🧱" },
+            "6": { "name": "💥 Investida Destruidora", "cost": 20, "resource": "STA", "type": "physical", "mainAttribute": "strength", "emoji": "💥" },
+            "8": { "name": "🌀 Grito de Guerra", "cost": 15, "resource": "STA", "type": "support", "effect": { "type": "buff", "target": "self", "stat": "strength", "value": 3, "duration": 3 }, "emoji": "🌀" },
+            "10": { "name": "🌪️ Ataque Giratório", "cost": 25, "resource": "STA", "type": "physical", "mainAttribute": "strength", "emoji": "🌪️" }
+        }
+    },
+    "Mago": {
+        "description": "Canalizador de energias arcanas. Manipula os elementos para causar dano devastador ou proteger aliados.",
+        "attributes": { "strength": 8, "dexterity": 10, "constitution": 9, "intelligence": 16, "wisdom": 14, "charisma": 11 },
+        "vitality": { "hp": 70, "mp": 100, "stamina": 60 },
+        "images": { "Masculino": "assets/sprites/mago_masculino.png", "Feminino": "assets/sprites/maga_feminina.png" },
+        "skills": {
+            "1": { "name": "⚡ Raio de Energia", "cost": 10, "resource": "MP", "type": "magic", "mainAttribute": "intelligence", "emoji": "⚡" },
+            "2": { "name": "🔥 Bola de Fogo", "cost": 15, "resource": "MP", "type": "magic", "mainAttribute": "intelligence", "emoji": "🔥" },
+            "4": { "name": "🧊 Escudo Arcano", "cost": 10, "resource": "MP", "type": "support", "effect": { "type": "buff", "target": "self", "stat": "defense", "value": 4, "duration": 3}, "mainAttribute": "intelligence", "emoji": "🧊" },
+            "6": { "name": "❄️ Raio Congelante", "cost": 25, "resource": "MP", "type": "magic", "mainAttribute": "intelligence", "emoji": "❄️", "effect": { "type": "debuff", "target": "enemy", "stat": "speed", "value": -5, "duration": 2 } },
+            "8": { "name": "✨ Restauração Menor", "cost": 20, "resource": "MP", "type": "support", "heal": 25, "mainAttribute": "wisdom", "emoji": "✨" },
+            "10": { "name": "☄️ Meteoro Ígneo", "cost": 40, "resource": "MP", "type": "magic", "mainAttribute": "intelligence", "emoji": "☄️" }
+        }
+    },
+    "Arqueiro": {
+        "description": "Especialista em ataques à distância. Usa precisão e agilidade para abater inimigos antes que se aproximem.",
+        "attributes": { "strength": 12, "dexterity": 16, "constitution": 13, "intelligence": 10, "wisdom": 12, "charisma": 10 },
+        "vitality": { "hp": 90, "mp": 50, "stamina": 90 },
+        "images": { "Masculino": "assets/sprites/arqueiro_masculino.png", "Feminino": "assets/sprites/arqueira_feminina.png" },
+        "skills": {
+            "1": { "name": "🎯 Tiro Certeiro", "cost": 5, "resource": "STA", "type": "physical", "mainAttribute": "dexterity", "emoji": "🎯" },
+            "2": { "name": "💨 Tiro Rápido", "cost": 10, "resource": "STA", "type": "physical", "mainAttribute": "dexterity", "emoji": "💨" },
+            "4": { "name": "☠️ Flecha Venenosa", "cost": 15, "resource": "STA", "type": "physical", "mainAttribute": "dexterity", "emoji": "☠️", "effect": { "type": "debuff", "target": "enemy", "stat": "dot", "value": 5, "duration": 3 } },
+            "6": { "name": "👻 Tiro Furtivo", "cost": 20, "resource": "STA", "type": "physical", "mainAttribute": "dexterity", "emoji": "👻" },
+            "8": { "name": "🦅 Olho de Águia", "cost": 10, "resource": "STA", "type": "support", "effect": { "type": "buff", "target": "self", "stat": "critChance", "value": 15, "duration": 3 }, "emoji": "🦅" },
+            "10": { "name": "🌧️ Chuva de Flechas", "cost": 30, "resource": "STA", "type": "physical", "mainAttribute": "dexterity", "emoji": "🌧️" }
+        }
+    },
+    "Ladino": {
+        "description": "Mestre da furtividade e do engano. Ataca das sombras e explora pontos fracos com velocidade mortal.",
+        "attributes": { "strength": 11, "dexterity": 16, "constitution": 12, "intelligence": 13, "wisdom": 11, "charisma": 12 },
+        "vitality": { "hp": 85, "mp": 40, "stamina": 110 },
+        "images": { "Masculino": "assets/sprites/ladino_masculino.png", "Feminino": "assets/sprites/ladina_feminina.png" },
+        "skills": {
+            "1": { "name": "🔪 Golpe Surpresa", "cost": 5, "resource": "STA", "type": "physical", "mainAttribute": "dexterity", "emoji": "🔪" },
+            "2": { "name": "🥷 Ataque Furtivo", "cost": 15, "resource": "STA", "type": "physical", "mainAttribute": "dexterity", "emoji": "🥷" },
+            "4": { "name": "💨 Evasão", "cost": 5, "resource": "STA", "type": "passive", "mainAttribute": "dexterity", "emoji": "💨" },
+            "6": { "name": "🩸 Golpe de Misericórdia", "cost": 30, "resource": "STA", "type": "physical", "mainAttribute": "dexterity", "emoji": "🩸" },
+            "8": { "name": "💣 Bomba de Fumaça", "cost": 10, "resource": "STA", "type": "support", "effect": { "type": "debuff", "target": "enemy", "stat": "accuracy", "value": -10, "duration": 2 }, "emoji": "💣" },
+            "10": { "name": "⚔️ Dança das Lâminas", "cost": 25, "resource": "STA", "type": "physical", "mainAttribute": "dexterity", "emoji": "⚔️" }
+        }
+    },
+    "Paladino": {
+        "description": "Guerreiro sagrado movido por sua fé. Combina poder marcial com magias divinas de proteção e cura.",
+        "attributes": { "strength": 15, "dexterity": 10, "constitution": 14, "intelligence": 9, "wisdom": 13, "charisma": 14 },
+        "vitality": { "hp": 110, "mp": 60, "stamina": 85 },
+        "images": { "Masculino": "assets/sprites/paladino_masculino.png", "Feminino": "assets/sprites/paladina_feminina.png" },
+        "skills": {
+            "1": { "name": "✨ Toque Sagrado", "cost": 5, "resource": "STA", "type": "physical", "mainAttribute": "strength", "emoji": "✨" },
+            "2": { "name": "💖 Cura Leve", "cost": 10, "resource": "MP", "type": "support", "heal": 20, "mainAttribute": "wisdom", "emoji": "💖" },
+            "4": { "name": "🔥 Golpe Sagrado", "cost": 15, "resource": "MP", "type": "magic", "mainAttribute": "charisma", "emoji": "🔥" },
+            "6": { "name": "😇 Aura de Proteção", "cost": 25, "resource": "MP", "type": "support", "effect": { "type": "buff", "target": "self", "stat": "defense", "value": 5, "duration": 3 }, "emoji": "😇" },
+            "8": { "name": "☀️ Luz Divina", "cost": 20, "resource": "MP", "type": "magic", "mainAttribute": "charisma", "emoji": "☀️" },
+            "10": { "name": "🙏 Bênção Maior", "cost": 30, "resource": "MP", "type": "support", "heal": 40, "mainAttribute": "wisdom", "emoji": "🙏" }
+        }
+    },
+    "Bardo": {
+        "description": "Um artista carismático cuja música possui poder mágico. Inspira aliados e desorienta inimigos.",
+        "attributes": { "strength": 10, "dexterity": 14, "constitution": 11, "intelligence": 12, "wisdom": 11, "charisma": 16 },
+        "vitality": { "hp": 80, "mp": 70, "stamina": 90 },
+        "images": { "Masculino": "assets/sprites/bardo_masculino.png", "Feminino": "assets/sprites/barda_feminina.png" },
+        "skills": {
+            "1": { "name": "🎶 Acorde Inspirador", "cost": 5, "resource": "MP", "type": "support", "effect": { "type": "buff", "target": "self", "stat": "staminaRegen", "value": 5, "duration": 3 }, "emoji": "🎶" },
+            "2": { "name": "🥁 Canção de Batalha", "cost": 10, "resource": "MP", "type": "support", "effect": { "type": "buff", "target": "self", "stat": "damage", "value": 3, "duration": 3 }, "emoji": "🥁" },
+            "4": { "name": "🚪 Fuga Mágica", "cost": 10, "resource": "MP", "type": "support", "mainAttribute": "charisma", "emoji": "🚪" },
+            "6": { "name": "🔮 Encanto de Persuasão", "cost": 20, "resource": "MP", "type": "magic", "mainAttribute": "charisma", "emoji": "🔮" },
+            "8": { "name": "😴 Canção de Ninar", "cost": 15, "resource": "MP", "type": "magic", "effect": { "type": "debuff", "target": "enemy", "stat": "sleep", "duration": 1 }, "emoji": "😴" },
+            "10": { "name": "🔊 Hino Heróico", "cost": 35, "resource": "MP", "type": "support", "effect": { "type": "buff", "target": "self", "stat": "allStats", "value": 2, "duration": 3 }, "emoji": "🔊" }
+        }
+    },
+    "Druida": {
+        "description": "Protetor da natureza. Usa a fúria do mundo natural e pode se transformar em feras selvagens.",
+        "attributes": { "strength": 11, "dexterity": 12, "constitution": 13, "intelligence": 13, "wisdom": 16, "charisma": 10 },
+        "vitality": { "hp": 95, "mp": 80, "stamina": 75 },
+        "images": { "Masculino": "assets/sprites/druida_masculino.png", "Feminino": "assets/sprites/druida_feminina.png" },
+        "skills": {
+            "1": { "name": "🌿 Crescimento Selvagem", "cost": 5, "resource": "STA", "type": "physical", "mainAttribute": "strength", "emoji": "🌿" },
+            "2": { "name": "🐻 Forma de Urso", "cost": 20, "resource": "STA", "type": "physical", "mainAttribute": "strength", "emoji": "🐻" },
+            "4": { "name": "⚕️ Cura da Natureza", "cost": 15, "resource": "MP", "type": "support", "heal": 25, "mainAttribute": "wisdom", "emoji": "⚕️" },
+            "6": { "name": "🌧️ Chuva de Espinhos", "cost": 20, "resource": "MP", "type": "magic", "mainAttribute": "wisdom", "emoji": "🌧️" },
+            "8": { "name": "🐺 Forma de Lobo", "cost": 15, "resource": "STA", "type": "physical", "mainAttribute": "dexterity", "emoji": "🐺" },
+            "10": { "name": "🌳 Raízes Prendedoras", "cost": 25, "resource": "MP", "type": "magic", "effect": { "type": "debuff", "target": "enemy", "stat": "rooted", "duration": 2 }, "emoji": "🌳" }
+        }
+    },
+    "Necromante": {
+        "description": "Estudioso das artes sombrias. Comanda os mortos e drena a força vital de seus adversários.",
+        "attributes": { "strength": 9, "dexterity": 11, "constitution": 12, "intelligence": 16, "wisdom": 14, "charisma": 8 },
+        "vitality": { "hp": 75, "mp": 90, "stamina": 65 },
+        "images": { "Masculino": "assets/sprites/necromante_masculino.png", "Feminino": "assets/sprites/necromante_feminina.png" },
+        "skills": {
+            "1": { "name": "💀 Drenar Sombra", "cost": 10, "resource": "MP", "type": "magic", "mainAttribute": "intelligence", "emoji": "💀" },
+            "2": { "name": "🖤 Drenar Vida", "cost": 15, "resource": "MP", "type": "magic", "mainAttribute": "intelligence", "emoji": "🖤" },
+            "4": { "name": "🦴 Invocar Esqueleto", "cost": 25, "resource": "MP", "type": "magic", "mainAttribute": "intelligence", "emoji": "🦴" },
+            "6": { "name": "🌫️ Névoa da Morte", "cost": 35, "resource": "MP", "type": "magic", "mainAttribute": "intelligence", "emoji": "🌫️" },
+            "8": { "name": "👻 Toque Fantasma", "cost": 20, "resource": "MP", "type": "magic", "effect": { "type": "debuff", "target": "enemy", "stat": "fear", "duration": 1 }, "emoji": "👻" },
+            "10": { "name": "🧟‍♂️ Reanimar Morto", "cost": 50, "resource": "MP", "type": "magic", "mainAttribute": "intelligence", "emoji": "🧟‍♂️" }
+        }
+    }
+}

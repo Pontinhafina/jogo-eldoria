@@ -1,0 +1,96 @@
+{
+    "FINISHER_SKILL": {
+        "name": "💥 Golpe Finalizador",
+        "cost": 100,
+        "resource": "FOCUS",
+        "type": "physical",
+        "mainAttribute": "strength",
+        "emoji": "💥",
+        "damageMultiplier": 3.0
+    },
+    "TITLES_DATA": {
+        "O Misericordioso": {
+            "description": "Conhecido por sua compaixão, mesmo para com os inimigos.",
+            "bonus": { "type": "attribute", "stat": "charisma", "value": 1 }
+        },
+        "O Justiceiro": {
+            "description": "Um vingador implacável contra o mal.",
+            "bonus": { "type": "attribute", "stat": "strength", "value": 1 }
+        },
+        "O Negociador": {
+            "description": "Sempre encontra uma maneira de obter o melhor acordo.",
+            "bonus": { "type": "reputation", "stat": "fame", "value": 5 }
+        }
+    },
+    "ENEMIES_DATA": {
+        "Goblin Batedor": {
+            "level": 1,
+            "maxHP": 30,
+            "description": "Uma criatura pequena e covarde, perigosa em números.",
+            "loot": [{ "itemName": "Fragmento de Ferro", "chance": 0.3 }],
+            "skills": [
+                { "name": "Golpe Fraco", "chance": 0.8 },
+                { "name": "Arremessar Pedra", "chance": 0.2, "damageMultiplier": 1.2, "cost": 0 }
+            ]
+        },
+        "Lobo Selvagem": {
+            "level": 2,
+            "maxHP": 45,
+            "description": "Um predador rápido e feroz das florestas.",
+            "loot": [{ "itemName": "Erva Comum", "chance": 0.5 }],
+            "skills": [
+                { "name": "Mordida", "chance": 0.7 },
+                { "name": "Uivo Assustador", "chance": 0.3, "effect": { "type": "debuff", "target": "player", "stat": "fear", "value": 1, "duration": 2 }, "cost": 0 }
+            ]
+        },
+        "Esqueleto Errante": {
+            "level": 2,
+            "maxHP": 40,
+            "description": "Restos mortais reanimados por magia sombria, implacável e sem dor.",
+            "loot": [{ "itemName": "Fragmento de Ferro", "chance": 0.4 }],
+            "skills": [
+                { "name": "Golpe de Espada Enferrujada", "chance": 1.0 }
+            ]
+        },
+        "Bandido da Estrada": {
+            "level": 3,
+            "maxHP": 60,
+            "description": "Um ladrão oportunista que não hesitará em lutar por algumas moedas.",
+            "skills": [
+                { "name": "Ataque de Adaga", "chance": 0.6 },
+                { "name": "Golpe Baixo", "chance": 0.2, "damageMultiplier": 1.5, "cost": 0 },
+                { "name": "Arremessar Areia", "chance": 0.2, "effect": { "type": "debuff", "target": "player", "stat": "accuracy", "value": -20, "duration": 2 }, "cost": 0 }
+            ]
+        }
+    },
+    "EQUIPMENT_DATA": {
+        "Espada Curta": { "slot": "weapon", "bonus": { "type": "attribute", "stat": "strength", "value": 1 }, "description": "+1 Força" },
+        "Adaga de Ferro": { "slot": "weapon", "bonus": { "type": "attribute", "stat": "dexterity", "value": 1 }, "description": "+1 Destreza" },
+        "Armadura de Couro": { "slot": "armor", "bonus": { "type": "attribute", "stat": "constitution", "value": 1 }, "description": "+1 Constituição" }
+    },
+    "QUESTS_DATA": {
+        "bounty_goblin_1": { "id": "bounty_goblin_1", "title": "Recompensa: Goblins Batedores", "description": "Um grupo de Goblins Batedores tem atacado viajantes na estrada ao norte. Elimine 3 deles.", "type": "bounty", "target": "Goblin Batedor", "targetCount": 3, "reward": { "xp": 50, "coins": 25 }, "level": 1 },
+        "bounty_wolf_1": { "id": "bounty_wolf_1", "title": "Recompensa: Lobos Selvagens", "description": "Uma matilha de Lobos Selvagens está ameaçando o gado de uma fazenda próxima. Cace 2 deles.", "type": "bounty", "target": "Lobo Selvagem", "targetCount": 2, "reward": { "xp": 75, "coins": 40 }, "level": 2 }
+    },
+    "SHOP_DATA": {
+        "inventory": [
+            { "itemName": "Poção de Cura", "price": 20 },
+            { "itemName": "Elixir de Mana", "price": 25 },
+            { "itemName": "Espada Curta", "price": 100 },
+            { "itemName": "Adaga de Ferro", "price": 100 },
+            { "itemName": "Armadura de Couro", "price": 150 }
+        ]
+    },
+    "CRAFTING_RECIPES": {
+        "recipe_potion_1": {
+            "product": "Poção de Cura",
+            "ingredients": [{ "name": "Erva Comum", "count": 2 }],
+            "description": "Cria uma Poção de Cura a partir de duas Ervas Comuns."
+        },
+        "recipe_dagger_1": {
+            "product": "Adaga de Ferro",
+            "ingredients": [{ "name": "Fragmento de Ferro", "count": 3 }],
+            "description": "Forja uma Adaga de Ferro a partir de três Fragmentos de Ferro."
+        }
+    }
+}
