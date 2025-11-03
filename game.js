@@ -202,6 +202,20 @@ let gameSettings = {
 };
 
 // =============================================
+// NOVO: VARIÁVEIS PARA ARMAZENAR DADOS DO JOGO
+// =============================================
+let ALL_CLASSES_DATA = {};
+let FINISHER_SKILL = {};
+let TITLES_DATA = {};
+let ENEMIES_DATA = {};
+let EQUIPMENT_DATA = {};
+let QUESTS_DATA = {};
+let SHOP_DATA = {};
+let CRAFTING_RECIPES = {};
+let isGameDataLoaded = false;
+
+
+// =============================================
 // DEFINIÇÕES COMPLETAS DAS FUNÇÕES DO JOGO
 // (Movidas para o escopo global)
 // =============================================
@@ -230,7 +244,7 @@ function saveCharacterProfile() {
     applyClassAttributes(role);
     const vitality = getClassVitality(role);
     
-    // Aplica modificador de dificuldade
+    // Aplica modificador de dificuldade ao HP
     if (gameSettings.difficulty === 'Facil') {
         vitality.hp = Math.floor(vitality.hp * 1.3);
     } else if (gameSettings.difficulty === 'Dificil') {
@@ -238,7 +252,7 @@ function saveCharacterProfile() {
     }
 
     const initialSkillEntry = SKILLS_BY_LEVEL[role]?.[1];
-    if (!initialSkillEntry) {
+    if (!initialSkillEntry && ALL_CLASSES_DATA[role]) { // Fallback para dados carregados
         alert(`Erro interno: Skill inicial não encontrada para ${role}.`);
         console.error(`Error: Initial skill not found for class ${role}.`);
         return;
@@ -272,14 +286,14 @@ function saveCharacterProfile() {
     document.getElementById('sidebar-char-name').textContent = name;
     document.getElementById('sidebar-char-role').textContent = role;
     document.getElementById('sidebar-char-level').textContent = '1';
-    document.getElementById('sidebar-char-xp').textContent = '0/100';
+    document.getElementById('sidebar-char-xp').textContent = `0/${1 * 100}`;
     updateCoinsUI(); // NOVO
     
     mainQuest = { title: "Encontre seu Caminho", status: "Ativa", description: "O Oráculo Digital te convocou." };
     sideQuests = [];
     relationships = {}; // Zera relacionamentos, Oráculo não é um NPC
 
-    document.getElementById('sidebar-char-image').src = classImages[role][sex];
+    document.getElementById('sidebar-char-image').src = ALL_CLASSES_DATA[role].images[sex];
     
     updateAttributeDisplay(); 
     updateHealthBars(); 
@@ -379,7 +393,7 @@ function addMessage(text, sender, type = 'normal') {
 
      let avatarHtml = '';
      if (sender === 'user' && localCharacterProfile) {
-         const imgUrl = classImages[localCharacterProfile.role][localCharacterProfile.sex];
+         const imgUrl = ALL_CLASSES_DATA[localCharacterProfile.role].images[localCharacterProfile.sex];
          avatarHtml = `<img src="${imgUrl}" class="avatar border-2 border-blue-400" alt="Avatar">`;
      } else if (sender === 'ai') {
          avatarHtml = `<img src="https://placehold.co/40x40/3a2e2a/d4af37?text=OD" class="avatar border-2 border-yellow-400" alt="OD">`;
@@ -428,6 +442,8 @@ function addMessage(text, sender, type = 'normal') {
      
      chatArea.appendChild(messageDiv); 
      chatArea.scrollTop = chatArea.scrollHeight; 
+     // NOVO: Garante que a rolagem automática aconteça de forma suave
+     chatArea.scrollTo({ top: chatArea.scrollHeight, behavior: 'smooth' });
      chatMessages.push({ text, sender, type });
      return messageDiv;
 }
@@ -840,18 +856,18 @@ function toggleMusic() {
 function updateClassCardImages() {
      const gender = document.getElementById('char-sex-input').value;
      // CORREÇÃO: Usar 'Masculino' como padrão APENAS se o gênero estiver vazio
-     const effectiveGender = gender || 'Masculino';
+     const effectiveGender = gender || 'Masculino'; // Default to Masculino if no gender is selected
      
      document.querySelectorAll('.class-card').forEach(card => {
          const className = card.getAttribute('data-class');
          const imgElement = card.querySelector('.class-icon-img');
-         if (imgElement && classImages[className]) {
+         if (imgElement && ALL_CLASSES_DATA[className]) {
              // Tenta pegar a imagem do gênero selecionado
-             let imageUrl = classImages[className][effectiveGender]; 
+             let imageUrl = ALL_CLASSES_DATA[className].images[effectiveGender]; 
              
              // Se a imagem para o gênero selecionado não existir (ex: Feminino), usa a Masculina como fallback
              if (!imageUrl) {
-                 imageUrl = classImages[className]['Masculino'];
+                 imageUrl = ALL_CLASSES_DATA[className].images['Masculino'];
              }
              imgElement.src = imageUrl;
          }
@@ -859,8 +875,8 @@ function updateClassCardImages() {
 }
 
 function applyClassAttributes(className) {
-    if (classAttributes[className]) {
-        attributes = {...classAttributes[className]};
+    if (ALL_CLASSES_DATA[className]) {
+        attributes = {...ALL_CLASSES_DATA[className].attributes};
         updateAttributeDisplay();
     }
 }
@@ -1079,8 +1095,8 @@ function updateSkillsModal() {
      const content = document.getElementById('skill-tree-content');
      content.innerHTML = '';
      if (!localCharacterProfile) return;
-
-     const classSkills = SKILLS_BY_LEVEL[localCharacterProfile.role];
+     const classSkills = ALL_CLASSES_DATA[localCharacterProfile.role]?.skills;
+     if (!classSkills) return;
      for (const level in classSkills) {
         const skill = classSkills[level];
         const node = document.createElement('div');
@@ -1132,7 +1148,7 @@ function equipItem(itemName) {
     // Se já houver um item no slot, desequipa primeiro
     if (localCharacterProfile.equipment[slot]) {
         unequipItem(slot);
-    }
+    } 
 
     // Remove do inventário e equipa
     const index = localCharacterProfile.inventory.indexOf(itemName);
@@ -1161,7 +1177,7 @@ function unequipItem(slot) {
 function recalculateStats() {
     if (!localCharacterProfile) return;
     // 1. Reseta para os atributos base da classe
-    attributes = { ...classAttributes[localCharacterProfile.role] };
+    attributes = { ...ALL_CLASSES_DATA[localCharacterProfile.role].attributes };
 
     // 2. Aplica bônus de equipamentos
     for (const slot in localCharacterProfile.equipment) {
@@ -1441,7 +1457,7 @@ function playerAttack() {
      clearExpiredEffects(true); updateStatusEffects(true); displayStatusEffects(true);
      if (localCharacterProfile.currentHP <= 0) { endCombat(false); return; }
      
-     const initSkillEntry = SKILLS_BY_LEVEL[localCharacterProfile.role]?.[1];
+     const initSkillEntry = ALL_CLASSES_DATA[localCharacterProfile.role]?.skills?.[1];
      if (!initSkillEntry) { addMessage('Erro: Ataque básico não encontrado!', 'ai', 'combat'); return; }
      
      const skill = initSkillEntry;
@@ -2471,7 +2487,7 @@ window.addEventListener('load', () => {
         if (!loadGame()) {
             alert("Nenhum jogo salvo encontrado.");
         }
-    });
+    }); 
     if (settingsBtn) settingsBtn.addEventListener('click', () => document.getElementById('settings-modal').classList.remove('hidden'));
     if (closeSettingsBtn) closeSettingsBtn.addEventListener('click', () => document.getElementById('settings-modal').classList.add('hidden'));
 
@@ -2544,8 +2560,8 @@ window.addEventListener('load', () => {
             // NOVO: Exibe a descrição da classe
             const className = card.getAttribute('data-class');
             const descriptionText = document.getElementById('class-description-text');
-            if (descriptionText && classDescriptions[className]) {
-                descriptionText.textContent = classDescriptions[className];
+            if (descriptionText && ALL_CLASSES_DATA[className]) {
+                descriptionText.textContent = ALL_CLASSES_DATA[className].description;
             }
 
             document.querySelectorAll('.class-card').forEach(c => c.classList.remove('selected'));
@@ -2581,7 +2597,10 @@ window.addEventListener('load', () => {
     });
 
     // Lógica de Inicialização Revisada
-    function initializeGame() {
+    async function initializeGame() {
+        // PRIMEIRO: Carrega todos os dados do jogo
+        await loadGameData();
+
         // Carrega configurações salvas
         const savedSettings = localStorage.getItem('eldoriaSettings');
         if (savedSettings) {
