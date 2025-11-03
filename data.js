@@ -1,12 +1,12 @@
 const classImages = {
-    Guerreiro: { Masculino: 'https://i.imgur.com/ArXSdnS_d.webp?maxwidth=760&fidelity=grand', Feminino: 'https://i.imgur.com/r0uoL1B_d.webp?maxwidth=760&fidelity=grand' },
-    Mago: { Masculino: 'https://i.imgur.com/aAKaaUz_d.webp?maxwidth=760&fidelity=grand', Feminino: 'https://i.imgur.com/M2oGdpo_d.webp?maxwidth=760&fidelity=grand' },
-    Arqueiro: { Masculino: 'https://i.imgur.com/1WG7eFg_d.webp?maxwidth=760&fidelity=grand', Feminino: 'https://i.imgur.com/IWE0lMl_d.webp?maxwidth=760&fidelity=grand' },
-    Ladino: { Masculino: 'https://i.imgur.com/y9mm7Cj_d.webp?maxwidth=760&fidelity=grand', Feminino: 'https://i.imgur.com/hTbqByR_d.webp?maxwidth=760&fidelity=grand' },
-    Paladino: { Masculino: 'https://i.imgur.com/MqvFBZR_d.webp?maxwidth=760&fidelity=grand', Feminino: 'https://i.imgur.com/D512ZBz_d.webp?maxwidth=760&fidelity=grand' },
-    Bardo: { Masculino: 'https://i.imgur.com/ZBECieC_d.webp?maxwidth=760&fidelity=grand', Feminino: 'https://i.imgur.com/ugCVGKj_d.webp?maxwidth=760&fidelity=grand' },
-    Druida: { Masculino: 'https://i.imgur.com/ngg86Ga_d.webp?maxwidth=760&fidelity=grand', Feminino: 'https://i.imgur.com/9Pfekzx_d.webp?maxwidth=760&fidelity=grand' },
-    Necromante: { Masculino: 'https://i.imgur.com/UPl1a5R_d.webp?maxwidth=760&fidelity=grand', Feminino: 'https://i.imgur.com/2NWNyb3_d.webp?maxwidth=760&fidelity=grand' },
+    Guerreiro: { Masculino: 'assets/sprites/guerreiro_masculino.png', Feminino: 'assets/sprites/guerreira_feminina.png' },
+    Mago: { Masculino: 'assets/sprites/mago_masculino.png', Feminino: 'assets/sprites/maga_feminina.png' },
+    Arqueiro: { Masculino: 'assets/sprites/arqueiro_masculino.png', Feminino: 'assets/sprites/arqueira_feminina.png' },
+    Ladino: { Masculino: 'assets/sprites/ladino_masculino.png', Feminino: 'assets/sprites/ladina_feminina.png' },
+    Paladino: { Masculino: 'assets/sprites/paladino_masculino.png', Feminino: 'assets/sprites/paladina_feminina.png' },
+    Bardo: { Masculino: 'assets/sprites/bardo_masculino.png', Feminino: 'assets/sprites/barda_feminina.png' },
+    Druida: { Masculino: 'assets/sprites/druida_masculino.png', Feminino: 'assets/sprites/druida_feminina.png' },
+    Necromante: { Masculino: 'assets/sprites/necromante_masculino.png', Feminino: 'assets/sprites/necromante_feminina.png' },
 };
 
 // NOVO: Descrições das Classes
