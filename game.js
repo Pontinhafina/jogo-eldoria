@@ -169,6 +169,7 @@ let gameMode = 'singleplayer';
 let storyMode = 'sandbox';
 let mainQuest = null;
 let sideQuests = [];
+let worldState = {}; // NOVO: Para Eventos Mundiais Dinâmicos
 let currentSceneDescription = "Iniciando a aventura."; // NOVO: O "Banco de Memória" da IA
 let attributes = { strength: 10, dexterity: 10, constitution: 10, intelligence: 10, wisdom: 10, charisma: 10 };
 const ENEMY_BASE_DAMAGE = 15;
@@ -241,6 +242,9 @@ function saveCharacterProfile() {
     const selectedStoryModeCard = document.querySelector('.story-mode-card.selected');
     storyMode = selectedStoryModeCard ? selectedStoryModeCard.getAttribute('data-mode') : 'sandbox';
 
+    const selectedGameModeBtn = document.querySelector('#character-setup .mode-button.active');
+    gameMode = selectedGameModeBtn ? selectedGameModeBtn.getAttribute('id').replace('setup-', '').replace('-btn', '') : 'singleplayer';
+
     applyClassAttributes(role);
     const vitality = getClassVitality(role);
     
@@ -251,7 +255,7 @@ function saveCharacterProfile() {
         vitality.hp = Math.floor(vitality.hp * 0.8);
     }
 
-    const initialSkillEntry = SKILLS_BY_LEVEL[role]?.[1];
+    const initialSkillEntry = ALL_CLASSES_DATA[role]?.skills?.[1];
     if (!initialSkillEntry && ALL_CLASSES_DATA[role]) { // Fallback para dados carregados
         alert(`Erro interno: Skill inicial não encontrada para ${role}.`);
         console.error(`Error: Initial skill not found for class ${role}.`);
@@ -267,7 +271,7 @@ function saveCharacterProfile() {
         maxHP: vitality.hp, currentHP: vitality.hp, maxMP: vitality.mp, currentMP: vitality.mp,
         maxStamina: vitality.stamina, currentStamina: vitality.stamina,
         inventory: ["Poção de Cura", "Poção de Cura", "Elixir de Mana"], 
-        skills: [initialSkillName],
+        skills: [initialSkillName], // NOVO: Adiciona a skill inicial
         coins: 50, // NOVO: Moedas iniciais
         equipment: { weapon: null, armor: null, accessory: null }, // NOVO: Slots de equipamento
         titles: [], // NOVO: Array para títulos
@@ -292,7 +296,7 @@ function saveCharacterProfile() {
     mainQuest = { title: "Encontre seu Caminho", status: "Ativa", description: "O Oráculo Digital te convocou." };
     sideQuests = [];
     relationships = {}; // Zera relacionamentos, Oráculo não é um NPC
-
+    
     document.getElementById('sidebar-char-image').src = ALL_CLASSES_DATA[role].images[sex];
     
     updateAttributeDisplay(); 
@@ -303,9 +307,15 @@ function saveCharacterProfile() {
     updateRelationshipsUI();
     updateEquipmentUI(); // NOVO
     updateReputationUI(); // NOVO
+    updateGameModeUI(); // NOVO: Atualiza a UI do modo de jogo
     updateChatInputStatus();
     updateObjectiveTracker(); // NOVO
     
+    // NOVO: Inicializa o modo multiplayer se selecionado
+    if (gameMode === 'multiplayer') {
+        initializeMultiplayer();
+    }
+
     document.getElementById('chat-area').innerHTML = '';
     startInitialStory();
     setMusicTrack('assets/music/the-epic-2-by-keys-of-moon.mp3');
@@ -368,6 +378,13 @@ async function handleContextualAction(text) {
     if (lowerText.includes('dormir') || lowerText.includes('descansar')) {
         addMessage('💤 Você decide descansar e recuperar suas forças.', 'ai', 'spell');
         advanceTime(8); // Avança 8 horas
+
+        // NOVO (Sugestão B): Checa por eventos mundiais ao avançar o tempo
+        const worldEventPrompt = `O tempo passou. Baseado no estado do mundo atual: ${JSON.stringify(worldState)}, descreva um evento ou uma mudança sutil que aconteceu enquanto o jogador não via. Seja breve. Se nada significativo aconteceu, apenas descreva o novo dia.`;
+        // Usamos um 'debounced' para não sobrecarregar a API
+        debouncedGenerateAIResponse(worldEventPrompt, localCharacterProfile);
+
+
         localCharacterProfile.currentHP = localCharacterProfile.maxHP;
         localCharacterProfile.currentMP = localCharacterProfile.maxMP;
         localCharacterProfile.currentStamina = localCharacterProfile.maxStamina;
@@ -396,7 +413,7 @@ function addMessage(text, sender, type = 'normal') {
          const imgUrl = ALL_CLASSES_DATA[localCharacterProfile.role].images[localCharacterProfile.sex];
          avatarHtml = `<img src="${imgUrl}" class="avatar border-2 border-blue-400" alt="Avatar">`;
      } else if (sender === 'ai') {
-         avatarHtml = `<img src="https://placehold.co/40x40/3a2e2a/d4af37?text=OD" class="avatar border-2 border-yellow-400" alt="OD">`;
+         avatarHtml = `<img src="assets/sprites/oraculo.png" class="avatar border-2 border-yellow-400" alt="Oráculo Digital">`;
      }
 
      let contentText = text;
@@ -531,7 +548,7 @@ CONTEXTO:
 - Sexo: ${characterContext.sex}
 - Missão Rastreada: ${trackedQuest ? `${trackedQuest.title} - ${trackedQuest.description}` : 'Nenhuma'}
 - Modo de História: ${storyMode}
-- Mundo: ${getCurrentWorldContext()}
+- **ESTADO DO MUNDO (EVENTOS-CHAVE):** ${JSON.stringify(worldState)}
 - Atributos: Força ${attributes.strength}, Destreza ${attributes.dexterity}, Inteligência ${attributes.intelligence}, Sabedoria ${attributes.wisdom}, Carisma ${attributes.charisma}
 - Mecânica de Combate: Simples, JRPG-like. Força/Destreza aumentam dano físico, Int/Carisma aumentam dano mágico/suporte.
 
@@ -552,7 +569,14 @@ NÃO comece suas respostas com o nome do personagem (ex: "Corvo, ...") ou com de
 
 **DIRETRIZ DE DIÁLOGO:**
 Quando um personagem (NPC) falar, use a tag de diálogo para criar um balão de fala. Formato: \`[DIALOGUE: "Nome do Personagem" | "Texto da fala."]\`
-Exemplo: O ferreiro olha para você e diz. [DIALOGUE: "Ferreiro" | "O que você quer? Estou ocupado."]
+
+**NOVO (Sugestão A) - DIRETRIZ DE MEMÓRIA DE NPC:**
+Se a ação do jogador for direcionada a um NPC específico, o histórico de conversas com ele será fornecido. Use essa memória para moldar a resposta do NPC de forma realista e consistente.
+Exemplo de Contexto Adicional:
+HISTÓRICO COM Elara: ["O jogador comprou uma espada.", "O jogador foi rude e ela não gostou."]
+Sua resposta como Elara deve refletir essa memória.
+
+Use a tag \`[RELATIONSHIP_CHANGE: "Nome do NPC" | valor]\` para indicar mudanças na relação (ex: -10 para uma ofensa, +20 para um favor).
 
 **DIRETRIZ DE INTERAÇÃO:**
 Quando a narrativa apresentar oportunidades claras de interação (ex: comida para comer, uma cama para dormir, um NPC para pagar), **mencione explicitamente o custo em moedas se houver**, para que o jogador saiba que pode realizar a ação.
@@ -572,6 +596,18 @@ Exemplo: [SCENE_SUMMARY: "O jogador está em uma taverna barulhenta, conversando
 
 `;
     let userQuery = `AÇÃO: "${userMessage}"`;
+
+    // NOVO (Sugestão A): Adiciona memória do NPC ao prompt, se aplicável
+    const targetNpcName = findTargetNpc(userMessage);
+    if (targetNpcName && relationships[targetNpcName]?.memory.length > 0) {
+        const npcMemory = relationships[targetNpcName].memory.slice(-3).join(', '); // Pega as 3 últimas memórias
+        systemInstruction += `
+**HISTÓRICO COM ${targetNpcName.toUpperCase()}:**
+[${npcMemory}]
+`;
+    }
+
+
     let isChoiceMode = (storyMode === 'narrative' && !isInCombat);
 
     systemInstruction += `
@@ -592,6 +628,17 @@ Exemplo: Você vê uma mulher forte martelando uma espada. [NEW_NPC: "Elara, a F
 **NOVA DIRETRIZ DE MISSÕES:**
 Você pode criar uma missão secundária para o jogador. Use a tag \`[NEW_QUEST: "Título da Missão" | "Descrição da missão"]\`. Apenas quando fizer sentido narrativo.
 Exemplo: Um fazendeiro diz: "Por favor, ajude-me! [NEW_QUEST: "Problema Lupino" | "Cace 3 Lobos Selvagens que estão atacando meu rebanho."]"
+
+**NOVO (Sugestão B) - DIRETRIZ DE EVENTOS MUNDIAIS:**
+Para ações de grande impacto (matar um personagem importante, destruir uma facção, salvar uma cidade), use a tag \`[WORLD_STATE_CHANGE: "chave_do_evento" | "novo_valor"]\`.
+Exemplo: O jogador derrota o líder dos bandidos. Sua resposta pode incluir: \`[WORLD_STATE_CHANGE: "bandit_threat" | "neutralized"]\`
+
+**NOVO (Sugestão C) - DIRETRIZ DE CRIAÇÃO EMERGENTE:**
+Se o jogador tentar criar algo (ex: "eu tento misturar a flor brilhante com o minério de ferro"), analise a lógica e a criatividade. Se fizer sentido no mundo de fantasia, gere um resultado com uma das seguintes tags:
+- **Item Criado:** \`[CREATED_ITEM: "Nome do Item" | "Descrição do item."]\`
+- **Habilidade Criada:** \`[CREATED_SKILL: "Nome da Habilidade" | "Descrição." | Custo (número) | Recurso (MP ou STA) | Tipo (physical, magic, support)]\`
+Exemplo de Resposta: A flor se funde ao metal, criando um brilho suave. [CREATED_ITEM: "Minério Encantado" | "Um minério de ferro que pulsa com uma leve energia mágica."]
+Se a combinação não fizer sentido, descreva a falha de forma divertida. Ex: "Você apenas cria uma pasta gosmenta e malcheirosa."
 
 **DIRETRIZ CRÍTICA DE COMBATE:**
 Se a ação do jogador levar a um combate direto (ex: "eu ataco", "vamos lutar", "enfrento a criatura"), sua resposta DEVE incluir a tag \`[START_COMBAT: "Nome do Inimigo"]\` e descrever o início da ação. **NÃO diga 'o combate começou' sem usar a tag.** Escolha um inimigo da lista: ${Object.keys(ENEMIES_DATA).join(', ')}.
@@ -632,7 +679,7 @@ D. [Quarta Escolha - Algo mais arriscado ou criativo]
     const loadingDiv = document.createElement('div');
     loadingDiv.className = 'message-box ai-message';
     loadingDiv.innerHTML = `
-        <img src="https://placehold.co/40x40/3a2e2a/d4af37?text=OD" class="avatar border-2 border-yellow-400" alt="OD">
+        <img src="assets/sprites/oraculo.png" class="avatar border-2 border-yellow-400" alt="Oráculo Digital">
         <div class="message-content flex items-center">
             <span>Pensando...</span>
             <div class="loading-indicator ml-2"></div>
@@ -765,11 +812,21 @@ function processAIResponseForGameChanges(response) {
     // NOVO: Regex para o resumo da cena (o "Banco de Memória")
     const summaryRegex = /\[SCENE_SUMMARY: "([^"]+)"\]/g;
     let summaryMatch;
-    if ((summaryMatch = summaryRegex.exec(response)) !== null) {
-        currentSceneDescription = summaryMatch[1]; // Atualiza a memória da cena
+    while ((summaryMatch = summaryRegex.exec(response)) !== null) {
+        currentSceneDescription = summaryMatch[1]; 
         console.log("Memória da Cena Atualizada:", currentSceneDescription);
         if (typeof updateDebugPanel === 'function') {
             updateDebugPanel(); // Atualiza o painel de depuração
+        }
+
+        // NOVO (Sugestão A): Adiciona o resumo à memória do NPC se houver um diálogo
+        const dialogueForMemoryRegex = /\[DIALOGUE: "([^"]+)"\s*\|/g;
+        const dialogueMatchForMemory = dialogueForMemoryRegex.exec(response);
+        if (dialogueMatchForMemory) {
+            const npcName = dialogueMatchForMemory[1];
+            if (relationships[npcName]) {
+                relationships[npcName].memory.push(currentSceneDescription);
+            }
         }
         processedText = processedText.replace(summaryMatch[0], "").trim();
     }
@@ -788,6 +845,44 @@ function processAIResponseForGameChanges(response) {
     while ((letterMatch = letterRegex.exec(response)) !== null) {
         // A função addMessage cuidará de extrair e renderizar isso.
         // Não removemos o texto aqui para que addMessage possa processá-lo.
+    }
+
+    // NOVO (Sugestão B): Regex para mudanças no estado do mundo
+    const worldStateRegex = /\[WORLD_STATE_CHANGE: "([^"]+)"\s*\|\s*"([^"]+)"\]/g;
+    let worldStateMatch;
+    while ((worldStateMatch = worldStateRegex.exec(response)) !== null) {
+        const key = worldStateMatch[1];
+        const value = worldStateMatch[2];
+        worldState[key] = value;
+        addMessage(`🌍 O estado do mundo mudou: ${key} agora é ${value}.`, 'ai', 'spell');
+        processedText = processedText.replace(worldStateMatch[0], "").trim();
+    }
+
+    // NOVO (Sugestão C): Regex para criação de itens
+    const createdItemRegex = /\[CREATED_ITEM: "([^"]+)"\s*\|\s*"([^"]+)"\]/g;
+    let createdItemMatch;
+    while ((createdItemMatch = createdItemRegex.exec(response)) !== null) {
+        const itemName = createdItemMatch[1];
+        const itemDesc = createdItemMatch[2];
+        localCharacterProfile.inventory.push(itemName);
+        addMessage(`🛠️ Item Criado: ${itemName}!`, 'ai', 'level-up');
+        updateInventoryUI();
+        processedText = processedText.replace(createdItemMatch[0], "").trim();
+    }
+
+    // NOVO (Sugestão C): Regex para criação de habilidades
+    const createdSkillRegex = /\[CREATED_SKILL: "([^"]+)"\s*\|\s*"([^"]+)"\s*\|\s*(\d+)\s*\|\s*(\w+)\s*\|\s*(\w+)\]/g;
+    let createdSkillMatch;
+    while ((createdSkillMatch = createdSkillRegex.exec(response)) !== null) {
+        const skillName = createdSkillMatch[1];
+        // A lógica para adicionar a skill dinamicamente seria complexa.
+        // Por agora, vamos apenas adicionar o nome da skill ao perfil do jogador.
+        if (!localCharacterProfile.skills.includes(skillName)) {
+            localCharacterProfile.skills.push(skillName);
+            addMessage(`💡 Habilidade Descoberta: ${skillName}!`, 'ai', 'level-up');
+            updateSkillsList();
+        }
+        processedText = processedText.replace(createdSkillMatch[0], "").trim();
     }
 
     return processedText;
@@ -904,7 +999,7 @@ function gainAttribute(attrName, value) {
     updateAttributeDisplay();
 }
 
-function getClassVitality(className) { return classVitality[className] || { hp: 100, mp: 50, stamina: 100 }; }
+function getClassVitality(className) { return ALL_CLASSES_DATA[className].vitality || { hp: 100, mp: 50, stamina: 100 }; }
 
 function getActiveSkills() {
      if (!localCharacterProfile || !localCharacterProfile.skills) return [];
@@ -913,7 +1008,7 @@ function getActiveSkills() {
 
 function getSkillByName(skillName) {
     if (!localCharacterProfile) return null;
-    const classTree = SKILLS_BY_LEVEL[localCharacterProfile.role];
+    const classTree = ALL_CLASSES_DATA[localCharacterProfile.role]?.skills;
     if (classTree) {
          for (const level in classTree) {
              if (classTree[level].name === skillName) {
@@ -1094,8 +1189,8 @@ function updateSkillsList() {
 function updateSkillsModal() {
      const content = document.getElementById('skill-tree-content');
      content.innerHTML = '';
-     if (!localCharacterProfile) return;
-     const classSkills = ALL_CLASSES_DATA[localCharacterProfile.role]?.skills;
+     if (!localCharacterProfile || !ALL_CLASSES_DATA[localCharacterProfile.role]) return;
+     const classSkills = ALL_CLASSES_DATA[localCharacterProfile.role].skills;
      if (!classSkills) return;
      for (const level in classSkills) {
         const skill = classSkills[level];
@@ -1260,7 +1355,13 @@ function addSideQuest(questData) {
 
 function addRelationship(npcName, description) {
     if (!relationships[npcName]) {
-        relationships[npcName] = { name: npcName, status: 'Neutro', level: 1, description: description };
+        relationships[npcName] = { 
+            name: npcName, 
+            status: 'Neutro', 
+            level: 1, 
+            description: description,
+            memory: [] // NOVO (Sugestão A): Inicializa a memória do NPC
+        };
         updateRelationshipsUI();
         addMessage(`🤝 Você conheceu ${npcName}.`, 'ai', 'spell');
     }
@@ -1964,6 +2065,7 @@ function saveGame() {
         attributes: attributes, 
         relationships: relationships, 
         sceneDescription: currentSceneDescription, // NOVO: Salva a memória da cena
+        worldState: worldState, // NOVO (Sugestão B): Salva o estado do mundo
         discoveredEnemies: discoveredEnemies // NOVO: Salva bestiário
     };
     localStorage.setItem('eldoriaSave', JSON.stringify(data)); 
@@ -1994,11 +2096,16 @@ function loadGame() {
         relationships = data.relationships || {};
         currentSceneDescription = data.sceneDescription || "Continuando a aventura."; // NOVO: Carrega a memória da cena
         discoveredEnemies = data.discoveredEnemies || []; // NOVO: Carrega bestiário
+        worldState = data.worldState || {}; // NOVO (Sugestão B): Carrega o estado do mundo
         gameTime = data.gameTime || { day: 1, hour: 8 }; // NOVO: Carrega o tempo
         
         updateUIFromSave(); 
         document.getElementById('chat-area').innerHTML = ''; 
         chatMessages.forEach(m => addMessage(m.text, m.sender, m.type)); 
+        // NOVO: Inicializa o modo multiplayer se o save for multiplayer
+        if (gameMode === 'multiplayer') {
+            initializeMultiplayer();
+        }
         addMessage('🔄 Jogo carregado!', 'ai'); 
         return true;
     } catch (e) { console.error('Load error:', e); alert('Erro ao carregar.'); localStorage.removeItem('eldoriaSave'); return false; }
@@ -2010,8 +2117,8 @@ function updateUIFromSave() {
      document.getElementById('sidebar-char-name').textContent = localCharacterProfile.name;
      document.getElementById('sidebar-char-role').textContent = localCharacterProfile.role;
      document.getElementById('sidebar-char-level').textContent = localCharacterProfile.level;
-     document.getElementById('sidebar-char-xp').textContent = `${localCharacterProfile.xp}/${localCharacterProfile.level * 100}`;
-     document.getElementById('sidebar-char-image').src = classImages[localCharacterProfile.role][localCharacterProfile.sex];
+     document.getElementById('sidebar-char-xp').textContent = `${localCharacterProfile.xp}/${localCharacterProfile.level * 100}`;     
+     document.getElementById('sidebar-char-image').src = ALL_CLASSES_DATA[localCharacterProfile.role].images[localCharacterProfile.sex];
      updateCoinsUI(); // NOVO
      updateAttributeDisplay(); 
      updateHealthBars(); 
@@ -2022,22 +2129,18 @@ function updateUIFromSave() {
      updateEquipmentUI(); // NOVO
      updateReputationUI(); // NOVO
      updateObjectiveTracker(); // NOVO
+     updateGameModeUI(); // NOVO: Garante que a UI do modo de jogo seja atualizada
      updateTimeUI(); // NOVO
      if (typeof updateDebugPanel === 'function') {
         updateDebugPanel(); // NOVO
      }
      updateChatInputStatus();
      document.getElementById('character-setup').style.display = 'none';
-}
-
-function resetGame() {
-    if (confirm('Novo jogo? Progresso será perdido!')) {
-        // CORREÇÃO: Esconde o menu principal para revelar a tela de criação.
         document.getElementById('main-menu').classList.add('hidden');
-
+        worldState = {}; // NOVO: Reseta o estado do mundo
         localStorage.removeItem('eldoriaSave'); 
         localCharacterProfile = null; chatMessages = []; currentEnemy = null; isInCombat = false; selectedClass = null; skillPoints = 0;
-        relationships = {}; gameMode = 'singleplayer'; storyMode = 'sandbox'; mainQuest = null; sideQuests = []; discoveredEnemies = [];
+        relationships = {}; gameMode = 'singleplayer'; storyMode = 'sandbox'; mainQuest = null; sideQuests = []; discoveredEnemies = []; // NOVO: Reseta gameMode
         coins = 0; // NOVO
         attributes = { strength: 10, dexterity: 10, constitution: 10, intelligence: 10, wisdom: 10, charisma: 10 };
         
@@ -2064,6 +2167,7 @@ function resetGame() {
         document.querySelectorAll('.class-card').forEach(c => c.classList.remove('selected'));
         document.querySelectorAll('.story-mode-card').forEach(c => c.classList.remove('selected')); 
         document.querySelector('.story-mode-card[data-mode="sandbox"]').classList.add('selected');
+        document.querySelector('#setup-singleplayer-btn').classList.add('active'); // NOVO: Seleciona singleplayer por padrão
 
         // Reseta o tempo
         gameTime = { day: 1, hour: 8 };
@@ -2076,6 +2180,7 @@ function resetGame() {
         updateRelationshipsUI(); 
         updateEquipmentUI();
         updateReputationUI();
+        updateGameModeUI(); // NOVO: Atualiza a UI do modo de jogo
         updateChatInputStatus();
         updateTimeUI(); // NOVO
         updateObjectiveTracker(); // NOVO
@@ -2085,6 +2190,22 @@ function resetGame() {
     }
 }
 
+// NOVO: Função para atualizar a UI do modo de jogo
+function updateGameModeUI() {
+    const singleplayerBtn = document.getElementById('singleplayer-btn');
+    const multiplayerBtn = document.getElementById('multiplayer-btn');
+    const multiplayerInfo = document.getElementById('multiplayer-info');
+
+    if (gameMode === 'multiplayer') {
+        singleplayerBtn?.classList.remove('active');
+        multiplayerBtn?.classList.add('active');
+        multiplayerInfo.innerHTML = '<p class="text-gray-400 italic">Modo multiplayer (funcionalidade de rede em desenvolvimento)</p>';
+    } else {
+        singleplayerBtn?.classList.add('active');
+        multiplayerBtn?.classList.remove('active');
+        multiplayerInfo.innerHTML = '<p class="text-gray-400 italic">Modo singleplayer ativo</p>';
+    }
+}
 // =============================================
 // NOVO: SISTEMA DE DEBUG
 // =============================================
@@ -2115,6 +2236,7 @@ function updateDebugPanel() {
         <p><strong>Ameaça Iminente:</strong> ${preparedEnemy ? preparedEnemy.name : 'Nenhuma'}</p>
         <p><strong>Foco:</strong> ${localCharacterProfile?.focus || 0}</p>
         <p><strong>Hora:</strong> Dia ${gameTime.day}, ${Math.floor(gameTime.hour)}h</p>
+        <p><strong>World State:</strong> ${JSON.stringify(worldState)}</p>
         <p class="mt-2"><strong>Memória da Cena:</strong></p>
         <p class="italic text-gray-400">${currentSceneDescription}</p>
     `;
@@ -2377,76 +2499,82 @@ function displayStatusEffects(targetIsPlayer) {
      }
 }
 
+// =============================================
+// NOVO: CARREGAMENTO DE DADOS DO JOGO (JSON)
+// =============================================
+async function loadGameData() {
+    try {
+        const [classesRes, gameDataRes] = await Promise.all([
+            fetch('classes.json'),
+            fetch('game_data.json')
+        ]);
+
+        if (!classesRes.ok || !gameDataRes.ok) {
+            throw new Error(`Falha ao carregar dados: ${classesRes.statusText} | ${gameDataRes.statusText}`);
+        }
+
+        ALL_CLASSES_DATA = await classesRes.json();
+        const gameData = await gameDataRes.json();
+
+        // Atribui os dados carregados às variáveis globais
+        FINISHER_SKILL = gameData.FINISHER_SKILL;
+        TITLES_DATA = gameData.TITLES_DATA;
+        ENEMIES_DATA = gameData.ENEMIES_DATA;
+        EQUIPMENT_DATA = gameData.EQUIPMENT_DATA;
+        QUESTS_DATA = gameData.QUESTS_DATA;
+        SHOP_DATA = gameData.SHOP_DATA;
+        CRAFTING_RECIPES = gameData.CRAFTING_RECIPES;
+
+        isGameDataLoaded = true;
+        console.log("Dados do jogo (JSON) carregados com sucesso.");
+    } catch (error) {
+        console.error("FALHA CRÍTICA: Não foi possível carregar os dados do jogo (JSON).", error);
+        alert("Erro fatal: Não foi possível carregar os arquivos de dados do jogo. Verifique o console (F12).");
+    }
+}
+
 
 // =============================================
 // EVENT LISTENERS E INICIALIZAÇÃO
 // =============================================
-window.addEventListener('load', () => {
+window.addEventListener('load', async () => {
     console.log("Window Loaded. Attaching listeners...");
+
+    // PRIMEIRO: Carrega todos os dados do jogo de forma assíncrona
+    await loadGameData();
 
     // Get Elements
     const saveCharBtn = document.getElementById('save-character-button');
     const sendBtn = document.getElementById('send-button');
     const sidebarToggleBtn = document.getElementById('sidebar-toggle');
-    const resetBtn = document.getElementById('reset-game-button');
-    const saveBtn = document.getElementById('save-game-button');
     const simCombatBtn = document.getElementById('simular-combate-btn');
     const attackBtn = document.getElementById('attack-btn');
     const skillBtn = document.getElementById('skill-btn');
     const itemBtn = document.getElementById('item-btn');
     const defendBtn = document.getElementById('defend-btn');
     const fleeBtn = document.getElementById('flee-btn');
-    const closeItemsBtn = document.getElementById('close-items-modal');
     const userInpt = document.getElementById('user-input');
     const sexInput = document.getElementById('char-sex-input');
-    const skillsModalBtn = document.getElementById('skills-modal-button');
-    const closeSkillsBtn = document.getElementById('close-skills-modal');
-    const questsModalBtn = document.getElementById('quests-modal-button');
-    const closeQuestsBtn = document.getElementById('close-quests-modal');
-    const relationshipsModalBtn = document.getElementById('relationships-modal-button');
-    const closeRelationshipsBtn = document.getElementById('close-relationships-modal');
-    const sendLetterBtn = document.getElementById('send-letter-btn'); // NOVO
-    const cancelLetterBtn = document.getElementById('cancel-letter-btn'); // NOVO
-    const craftingModalBtn = document.getElementById('crafting-modal-button'); // NOVO
-    const closeCraftingBtn = document.getElementById('close-crafting-modal'); // NOVO
-    const bestiaryModalBtn = document.getElementById('bestiary-modal-button'); // NOVO
-    const closeBestiaryBtn = document.getElementById('close-bestiary-modal'); // NOVO
-
-    const travelModalBtn = document.getElementById('travel-modal-button'); // NOVO
-    const closeTravelModalBtn = document.getElementById('close-travel-modal'); // NOVO
-    const finisherBtn = document.getElementById('finisher-btn'); // NOVO
-
-    const stanceButtons = document.querySelectorAll('.stance-button'); // NOVO
-    // NOVO: Botões e Modais de Loja e Recompensas
-    const shopModalBtn = document.getElementById('shop-modal-button');
-    const closeShopBtn = document.getElementById('close-shop-modal');
-    const bountyBoardModalBtn = document.getElementById('bounty-board-modal-button');
-    const closeBountyBoardBtn = document.getElementById('close-bounty-board-modal');
-
-    // Novos elementos do Menu
+    const finisherBtn = document.getElementById('finisher-btn');
+    const stanceButtons = document.querySelectorAll('.stance-button');
     const newGameBtn = document.getElementById('new-game-btn');
     const loadGameBtn = document.getElementById('load-game-btn');
     const settingsBtn = document.getElementById('settings-btn');
     const closeSettingsBtn = document.getElementById('close-settings-btn');
     const musicVolumeSlider = document.getElementById('music-volume-slider');
     const sfxVolumeSlider = document.getElementById('sfx-volume-slider');
-    const ingameMenuBtn = document.getElementById('ingame-menu-button');
-    const audioBtn = document.getElementById('audio-toggle-button');
-    const debugToggleBtn = document.getElementById('debug-toggle-button'); // NOVO
+    const debugToggleBtn = document.getElementById('debug-toggle-button');
 
     // Attach Listeners
     if (saveCharBtn) saveCharBtn.addEventListener('click', saveCharacterProfile); else console.error("Save button not found!");
     if (sendBtn) sendBtn.addEventListener('click', sendMessage); else console.error("Send button not found!");
-    if (resetBtn) resetBtn.addEventListener('click', resetGame);
-    if (saveBtn) saveBtn.addEventListener('click', saveGame);
-    if (audioBtn) audioBtn.addEventListener('click', toggleMusic);
-    if (debugToggleBtn) debugToggleBtn.addEventListener('click', toggleDebugPanel); // NOVO
+    if (debugToggleBtn) debugToggleBtn.addEventListener('click', toggleDebugPanel);
     if (simCombatBtn) simCombatBtn.addEventListener('click', () => {
         if (!localCharacterProfile) { addMessage('❌ Crie um personagem!', 'ai'); return; }
         const lvl = localCharacterProfile.level; 
         const enemy = { name: `Simulador Lvl ${lvl}`, level: lvl, maxHP: 80+(lvl*20), currentHP: 80+(lvl*20), statusEffects: [] };
         addMessage(`⚙️ Iniciando simulação de combate contra ${enemy.name}!`, 'ai', 'spell'); 
-        startCombat(enemy, true); // NOVO: true para simulação
+        startCombat(enemy, true);
     });
     if (attackBtn) attackBtn.addEventListener('click', playerAttack);
     if (skillBtn) skillBtn.addEventListener('click', () => {
@@ -2457,36 +2585,18 @@ window.addEventListener('load', () => {
     if (itemBtn) itemBtn.addEventListener('click', openCombatItemsModal);
     if (defendBtn) defendBtn.addEventListener('click', playerDefend);
     if (fleeBtn) fleeBtn.addEventListener('click', playerFlee);
-    if (finisherBtn) finisherBtn.addEventListener('click', useFinisher); // NOVO
-    if (closeItemsBtn) closeItemsBtn.addEventListener('click', () => document.getElementById('combat-items-modal').classList.add('hidden'));
-    if (skillsModalBtn) skillsModalBtn.addEventListener('click', () => { document.getElementById('skills-modal').classList.remove('hidden'); updateSkillsModal(); });
-    if (closeSkillsBtn) closeSkillsBtn.addEventListener('click', () => document.getElementById('skills-modal').classList.add('hidden'));
-    // NOVO: Listeners das Cartas
-    if (sendLetterBtn) sendLetterBtn.addEventListener('click', sendLetter);
-    if (cancelLetterBtn) cancelLetterBtn.addEventListener('click', closeLetterModal);
-    // NOVO: Listeners de Crafting
-    if (craftingModalBtn) craftingModalBtn.addEventListener('click', openCraftingModal);
-    if (closeCraftingBtn) closeCraftingBtn.addEventListener('click', () => document.getElementById('crafting-modal').classList.add('hidden'));
-    // NOVO: Listeners do Bestiário
-    if (bestiaryModalBtn) bestiaryModalBtn.addEventListener('click', openBestiaryModal);
-    if (closeBestiaryBtn) closeBestiaryBtn.addEventListener('click', () => document.getElementById('bestiary-modal').classList.add('hidden'));
-    // NOVO: Listeners de Viagem
-    if (travelModalBtn) travelModalBtn.addEventListener('click', openTravelModal);
-    if (closeTravelModalBtn) closeTravelModalBtn.addEventListener('click', () => document.getElementById('travel-modal').classList.add('hidden'));
-
+    if (finisherBtn) finisherBtn.addEventListener('click', useFinisher);
     if (userInpt) userInpt.addEventListener('keypress', (e) => { if (e.key === 'Enter') sendMessage(); });
     if (sexInput) sexInput.addEventListener('change', updateClassCardImages); 
 
     // Listeners do Menu Principal e Configurações
     if (newGameBtn) newGameBtn.addEventListener('click', () => {
-        startAudioContext(); // Inicia o áudio com o primeiro clique
+        startAudioContext();
         resetGame();
     });
     if (loadGameBtn) loadGameBtn.addEventListener('click', () => {
         startAudioContext();
-        if (!loadGame()) {
-            alert("Nenhum jogo salvo encontrado.");
-        }
+        if (!loadGame()) alert("Nenhum jogo salvo encontrado.");
     }); 
     if (settingsBtn) settingsBtn.addEventListener('click', () => document.getElementById('settings-modal').classList.remove('hidden'));
     if (closeSettingsBtn) closeSettingsBtn.addEventListener('click', () => document.getElementById('settings-modal').classList.add('hidden'));
@@ -2494,7 +2604,7 @@ window.addEventListener('load', () => {
     // Listeners de Configurações
     if (musicVolumeSlider) musicVolumeSlider.addEventListener('input', (e) => {
         gameSettings.musicVolume = parseFloat(e.target.value);
-        if (musicPlayer) musicPlayer.volume.value = Tone.gainToDb(gameSettings.musicVolume * 2);
+        if (musicPlayer) musicPlayer.volume.value = Tone.gainToDb(gameSettings.musicVolume * 2); // Multiplica para dar mais alcance
     });
     if (sfxVolumeSlider) sfxVolumeSlider.addEventListener('input', (e) => {
         gameSettings.sfxVolume = parseFloat(e.target.value);
@@ -2502,36 +2612,39 @@ window.addEventListener('load', () => {
         localStorage.setItem('eldoriaSettings', JSON.stringify(gameSettings));
     });
 
-    // --- NOVO: Lógica de Listeners Refatorada ---
-
-    // Função auxiliar para adicionar listeners a modais
+    // Função auxiliar para configurar modais
     const setupModal = (buttonId, modalId, openFn = null) => {
         const modal = document.getElementById(modalId);
+        if (!modal) return; // NOVO: Sai da função se o modal não existir, evitando erros.
         const openBtn = document.getElementById(buttonId);
-        const closeBtn = modal.querySelector('[id^="close-"]'); // Encontra qualquer botão de fechar dentro do modal
+        const closeBtn = modal ? modal.querySelector('[id^="close-' + modalId.replace('-modal', '') + '"]') : null;
 
         if (openBtn) openBtn.addEventListener('click', (e) => {
-            e.preventDefault(); // Previne o comportamento padrão de links <a>
+            e.preventDefault();
             if (openFn) openFn();
             modal.classList.remove('hidden');
         });
         if (closeBtn) closeBtn.addEventListener('click', () => modal.classList.add('hidden'));
     };
 
-    // Configura todos os modais
+    // Configura todos os modais principais
     setupModal('skills-modal-button', 'skills-modal', updateSkillsModal);
     setupModal('quests-modal-button', 'quests-modal');
     setupModal('relationships-modal-button', 'relationships-modal');
     setupModal('shop-modal-button', 'shop-modal', openShopModal);
     setupModal('bounty-board-modal-button', 'bounty-board-modal', openBountyBoardModal);
     setupModal('travel-modal-button', 'travel-modal', openTravelModal);
-    setupModal('crafting-modal-button', 'crafting-modal', openCraftingModal);
     setupModal('bestiary-modal-button', 'bestiary-modal', openBestiaryModal);
+    setupModal('crafting-modal-button', 'crafting-modal', openCraftingModal);
+    // CORREÇÃO: O botão de itens de combate é 'item-btn', não 'combat-items-modal'
+    setupModal('item-btn', 'combat-items-modal', openCombatItemsModal);
+    document.getElementById('cancel-letter-btn')?.addEventListener('click', closeLetterModal);
+    document.getElementById('send-letter-btn')?.addEventListener('click', sendLetter);
     
     // Listeners que não são de modais
     if (sidebarToggleBtn) sidebarToggleBtn.addEventListener('click', () => document.getElementById('sidebar').classList.toggle('open'));
     stanceButtons.forEach(btn => btn.addEventListener('click', () => setCombatStance(btn.getAttribute('data-stance'))));
-    document.getElementById('difficulty-buttons').addEventListener('click', (e) => {
+    document.getElementById('difficulty-buttons')?.addEventListener('click', (e) => {
         if (e.target.classList.contains('difficulty-button')) {
             gameSettings.difficulty = e.target.getAttribute('data-difficulty');
             updateDifficultyButtons();
@@ -2541,20 +2654,15 @@ window.addEventListener('load', () => {
 
     // Listeners do NOVO Menu de Jogo
     setupModal('ingame-menu-button', 'game-menu-modal');
-    document.getElementById('menu-save-game-btn').addEventListener('click', saveGame);
-    // CORREÇÃO: A linha abaixo estava com um bug, agora está correta.
-    document.getElementById('menu-load-game-btn').addEventListener('click', () => {
+    document.getElementById('menu-save-game-btn')?.addEventListener('click', saveGame);
+    document.getElementById('menu-load-game-btn')?.addEventListener('click', () => {
         if (!loadGame()) alert("Nenhum jogo salvo encontrado.");
     });
-    document.getElementById('menu-load-game-btn').addEventListener('click', () => { if(!loadGame()) alert("Nenhum jogo salvo."); });
-    document.getElementById('menu-settings-btn').addEventListener('click', () => document.getElementById('settings-modal').classList.remove('hidden'));
-    document.getElementById('menu-main-menu-btn').addEventListener('click', () => { if(confirm("Voltar ao menu principal? O progresso não salvo será perdido.")) window.location.reload(); });
-
+    document.getElementById('menu-settings-btn')?.addEventListener('click', () => document.getElementById('settings-modal').classList.remove('hidden'));
+    document.getElementById('menu-main-menu-btn')?.addEventListener('click', () => { if(confirm("Voltar ao menu principal? O progresso não salvo será perdido.")) window.location.reload(); });
 
     document.querySelectorAll('.class-card').forEach(card => {
         card.addEventListener('click', () => {
-            // Garante que o contexto de áudio seja iniciado no primeiro clique, se ainda não estiver.
-            // Isso é útil se o jogador interagir com a criação de personagem antes de iniciar o jogo.
             startAudioContext();
 
             // NOVO: Exibe a descrição da classe
@@ -2579,6 +2687,15 @@ window.addEventListener('load', () => {
         });
     });
 
+    // NOVO: Listeners para seleção de modo de jogo na criação de personagem
+    document.getElementById('setup-singleplayer-btn')?.addEventListener('click', () => {
+        document.getElementById('setup-singleplayer-btn').classList.add('active');
+        document.getElementById('setup-multiplayer-btn').classList.remove('active');
+    });
+    document.getElementById('setup-multiplayer-btn')?.addEventListener('click', () => {
+        document.getElementById('setup-multiplayer-btn').classList.add('active');
+        document.getElementById('setup-singleplayer-btn').classList.remove('active');
+    });
     // --- NOVO: Lógica para o menu "Ações no Mundo" ---
     const worldActionsButton = document.getElementById('world-actions-button');
     const worldActionsDropdown = document.getElementById('world-actions-dropdown');
@@ -2596,40 +2713,73 @@ window.addEventListener('load', () => {
         }
     });
 
-    // Lógica de Inicialização Revisada
-    async function initializeGame() {
-        // PRIMEIRO: Carrega todos os dados do jogo
-        await loadGameData();
+    // NOVO (Sugestão A): Função para encontrar o nome de um NPC na mensagem do jogador
+    function findTargetNpc(text) {
+        const lowerText = text.toLowerCase();
+        const npcNames = Object.keys(relationships);
+        for (const name of npcNames) {
+            if (lowerText.includes(name.toLowerCase())) {
+                return name;
+            }
+        }
+        return null;
+    }
 
+    // NOVO: Função para inicializar a conexão multiplayer
+    function initializeMultiplayer() {
+        const multiplayerInfo = document.getElementById('multiplayer-info');
+        multiplayerInfo.innerHTML = '<p class="text-yellow-400 italic">Conectando ao servidor multiplayer...</p>';
+
+        // O endereço 'ws://' ou 'wss://' do seu futuro servidor iria aqui.
+        // AGORA CONECTANDO AO SERVIDOR ONLINE NO RENDER!
+        // IMPORTANTE: Substitua 'eldoria-server' pelo nome que você deu ao seu serviço no Render.
+        const socket = new WebSocket('wss://eldoria-cr-nicas-do-or-culo.onrender.com');
+
+        socket.onopen = function(e) {
+            console.log("[Multiplayer] Conexão estabelecida!");
+            multiplayerInfo.innerHTML = '<p class="text-green-400 italic">Conectado ao servidor! (Modo Online)</p>';
+            // Aqui você enviaria os dados do seu personagem para o servidor
+            // socket.send(JSON.stringify({ type: 'JOIN_GAME', data: localCharacterProfile }));
+        };
+
+        socket.onmessage = function(event) {
+            console.log(`[Multiplayer] Dados recebidos do servidor: ${event.data}`);
+            // Aqui você processaria as atualizações do estado do jogo vindas do servidor
+        };
+
+        socket.onerror = function(error) {
+            console.error(`[Multiplayer] Erro no WebSocket: ${error.message}`);
+            multiplayerInfo.innerHTML = '<p class="text-red-500 italic">Falha ao conectar ao servidor.</p>';
+        };
+    }
+
+    function initializeGame() {
         // Carrega configurações salvas
         const savedSettings = localStorage.getItem('eldoriaSettings');
         if (savedSettings) {
             gameSettings = JSON.parse(savedSettings);
         }
         // Aplica configurações na UI
-        musicVolumeSlider.value = gameSettings.musicVolume;
-        sfxVolumeSlider.value = gameSettings.sfxVolume;
-        if (musicPlayer) musicPlayer.volume.value = Tone.gainToDb(gameSettings.musicVolume * 2); // Multiplica para dar mais alcance
+        if (musicVolumeSlider) musicVolumeSlider.value = gameSettings.musicVolume;
+        if (sfxVolumeSlider) sfxVolumeSlider.value = gameSettings.sfxVolume;
+        if (musicPlayer) musicPlayer.volume.value = Tone.gainToDb(gameSettings.musicVolume * 2);
         if(synth) synth.volume.value = Tone.gainToDb(gameSettings.sfxVolume);
         updateDifficultyButtons();
 
         // Mostra o botão de carregar se houver save
-        if (!localStorage.getItem('eldoriaSave')) {
+        if (loadGameBtn && !localStorage.getItem('eldoriaSave')) {
             loadGameBtn.classList.add('disabled-button');
             loadGameBtn.disabled = true;
         }
 
         // Toca a música do menu
-        if (isMusicPlaying) {
-            setMusicTrack(MUSIC_TRACKS.menu);
-        }
+        setMusicTrack(MUSIC_TRACKS.menu); // NOVO: Garante que a música do menu toque
     }
 
     function updateDifficultyButtons() {
-        document.querySelectorAll('.difficulty-button').forEach(btn => {
-            btn.classList.toggle('active', btn.getAttribute('data-difficulty') === gameSettings.difficulty);
-        });
+        document.querySelectorAll('.difficulty-button').forEach(btn => btn.classList.toggle('active', btn.getAttribute('data-difficulty') === gameSettings.difficulty));
     }
+
     initializeGame();
 
      console.log("Listeners attached. Game should be ready."); // Log final
