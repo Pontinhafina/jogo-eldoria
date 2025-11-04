@@ -2718,18 +2718,6 @@ window.addEventListener('load', async () => {
         }
     });
 
-    // NOVO (Sugestão A): Função para encontrar o nome de um NPC na mensagem do jogador
-    function findTargetNpc(text) {
-        const lowerText = text.toLowerCase();
-        const npcNames = Object.keys(relationships);
-        for (const name of npcNames) {
-            if (lowerText.includes(name.toLowerCase())) {
-                return name;
-            }
-        }
-        return null;
-    }
-
     // NOVO: Função para inicializar a conexão multiplayer
     function initializeMultiplayer() {
         const multiplayerInfo = document.getElementById('multiplayer-info');
