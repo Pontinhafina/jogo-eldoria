@@ -2538,6 +2538,31 @@ async function loadGameData() {
 // EVENT LISTENERS E INICIALIZAÇÃO
 // =============================================
 window.addEventListener('load', async () => {
+    // Lógica de Inicialização Revisada
+    function initializeGame() {
+        // Carrega configurações salvas
+        const savedSettings = localStorage.getItem('eldoriaSettings');
+        if (savedSettings) {
+            gameSettings = JSON.parse(savedSettings);
+        }
+        // Aplica configurações na UI
+        if (musicVolumeSlider) musicVolumeSlider.value = gameSettings.musicVolume;
+        if (sfxVolumeSlider) sfxVolumeSlider.value = gameSettings.sfxVolume;
+        if (musicPlayer) musicPlayer.volume.value = Tone.gainToDb(gameSettings.musicVolume * 2);
+        if(synth) synth.volume.value = Tone.gainToDb(gameSettings.sfxVolume);
+        updateDifficultyButtons();
+
+        // Mostra o botão de carregar se houver save
+        if (loadGameBtn && !localStorage.getItem('eldoriaSave')) {
+            loadGameBtn.classList.add('disabled-button');
+            loadGameBtn.disabled = true;
+        }
+
+        // Toca a música do menu
+        setMusicTrack(MUSIC_TRACKS.menu); // NOVO: Garante que a música do menu toque
+    }
+
+
     console.log("Window Loaded. Attaching listeners...");
 
     // PRIMEIRO: Carrega todos os dados do jogo de forma assíncrona
@@ -2725,6 +2750,29 @@ window.addEventListener('load', async () => {
         return null;
     }
 
+    function initializeGame() {
+        // Carrega configurações salvas
+        const savedSettings = localStorage.getItem('eldoriaSettings');
+        if (savedSettings) {
+            gameSettings = JSON.parse(savedSettings);
+        }
+        // Aplica configurações na UI
+        if (musicVolumeSlider) musicVolumeSlider.value = gameSettings.musicVolume;
+        if (sfxVolumeSlider) sfxVolumeSlider.value = gameSettings.sfxVolume;
+        if (musicPlayer) musicPlayer.volume.value = Tone.gainToDb(gameSettings.musicVolume * 2);
+        if(synth) synth.volume.value = Tone.gainToDb(gameSettings.sfxVolume);
+        updateDifficultyButtons();
+
+        // Mostra o botão de carregar se houver save
+        if (loadGameBtn && !localStorage.getItem('eldoriaSave')) {
+            loadGameBtn.classList.add('disabled-button');
+            loadGameBtn.disabled = true;
+        }
+
+        // Toca a música do menu
+        setMusicTrack(MUSIC_TRACKS.menu);
+    }
+
     // NOVO: Função para inicializar a conexão multiplayer
     function initializeMultiplayer() {
         const multiplayerInfo = document.getElementById('multiplayer-info');
@@ -2732,9 +2780,34 @@ window.addEventListener('load', async () => {
 
         // O endereço 'ws://' ou 'wss://' do seu futuro servidor iria aqui.
         // AGORA CONECTANDO AO SERVIDOR ONLINE NO RENDER!
-        // IMPORTANTE: Substitua 'eldoria-server' pelo nome que você deu ao seu serviço no Render.
-        const socket = new WebSocket('wss://eldoria-cr-nicas-do-or-culo.onrender.com');
+        const socket = new WebSocket('wss://eldoria-cronicas-do-oraculo.onrender.com');
 
+        socket.onopen = function(e) {
+            console.log("[Multiplayer] Conexão estabelecida!");
+            multiplayerInfo.innerHTML = '<p class="text-green-400 italic">Conectado ao servidor! (Modo Online)</p>';
+            // Aqui você enviaria os dados do seu personagem para o servidor
+            // socket.send(JSON.stringify({ type: 'JOIN_GAME', data: localCharacterProfile }));
+        };
+
+        socket.onmessage = function(event) {
+            console.log(`[Multiplayer] Dados recebidos do servidor: ${event.data}`);
+            // Aqui você processaria as atualizações do estado do jogo vindas do servidor
+        };
+
+        socket.onerror = function(error) {
+            console.error(`[Multiplayer] Erro no WebSocket: ${error.message}`);
+            multiplayerInfo.innerHTML = '<p class="text-red-500 italic">Falha ao conectar ao servidor.</p>';
+        };
+    }
+
+    function updateDifficultyButtons() {
+        document.querySelectorAll('.difficulty-button').forEach(btn => btn.classList.toggle('active', btn.getAttribute('data-difficulty') === gameSettings.difficulty));
+    }
+
+    initializeGame();
+
+     console.log("Listeners attached. Game should be ready."); // Log final
+}); // Fim do window.addEventListener('load')
         socket.onopen = function(e) {
             console.log("[Multiplayer] Conexão estabelecida!");
             multiplayerInfo.innerHTML = '<p class="text-green-400 italic">Conectado ao servidor! (Modo Online)</p>';
