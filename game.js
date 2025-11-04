@@ -2136,6 +2136,11 @@ function updateUIFromSave() {
      }
      updateChatInputStatus();
      document.getElementById('character-setup').style.display = 'none';
+}
+
+function resetGame() {
+    if (confirm('Novo jogo? Progresso será perdido!')) {
+        // CORREÇÃO: Esconde o menu principal para revelar a tela de criação.
         document.getElementById('main-menu').classList.add('hidden');
         worldState = {}; // NOVO: Reseta o estado do mundo
         localStorage.removeItem('eldoriaSave'); 
@@ -2538,7 +2543,6 @@ async function loadGameData() {
 // EVENT LISTENERS E INICIALIZAÇÃO
 // =============================================
 window.addEventListener('load', async () => {
-
     console.log("Window Loaded. Attaching listeners...");
 
     // PRIMEIRO: Carrega todos os dados do jogo de forma assíncrona
@@ -2726,6 +2730,34 @@ window.addEventListener('load', async () => {
         return null;
     }
 
+    // NOVO: Função para inicializar a conexão multiplayer
+    function initializeMultiplayer() {
+        const multiplayerInfo = document.getElementById('multiplayer-info');
+        multiplayerInfo.innerHTML = '<p class="text-yellow-400 italic">Conectando ao servidor multiplayer...</p>';
+
+        // O endereço 'ws://' ou 'wss://' do seu futuro servidor iria aqui.
+        // AGORA CONECTANDO AO SERVIDOR ONLINE NO RENDER!
+        // IMPORTANTE: Substitua 'eldoria-server' pelo nome que você deu ao seu serviço no Render.
+        const socket = new WebSocket('wss://eldoria-cr-nicas-do-or-culo.onrender.com');
+
+        socket.onopen = function(e) {
+            console.log("[Multiplayer] Conexão estabelecida!");
+            multiplayerInfo.innerHTML = '<p class="text-green-400 italic">Conectado ao servidor! (Modo Online)</p>';
+            // Aqui você enviaria os dados do seu personagem para o servidor
+            // socket.send(JSON.stringify({ type: 'JOIN_GAME', data: localCharacterProfile }));
+        };
+
+        socket.onmessage = function(event) {
+            console.log(`[Multiplayer] Dados recebidos do servidor: ${event.data}`);
+            // Aqui você processaria as atualizações do estado do jogo vindas do servidor
+        };
+
+        socket.onerror = function(error) {
+            console.error(`[Multiplayer] Erro no WebSocket: ${error.message}`);
+            multiplayerInfo.innerHTML = '<p class="text-red-500 italic">Falha ao conectar ao servidor.</p>';
+        };
+    }
+
     function initializeGame() {
         // Carrega configurações salvas
         const savedSettings = localStorage.getItem('eldoriaSettings');
@@ -2746,34 +2778,7 @@ window.addEventListener('load', async () => {
         }
 
         // Toca a música do menu
-        setMusicTrack(MUSIC_TRACKS.menu);
-    }
-
-    // NOVO: Função para inicializar a conexão multiplayer
-    function initializeMultiplayer() {
-        const multiplayerInfo = document.getElementById('multiplayer-info');
-        multiplayerInfo.innerHTML = '<p class="text-yellow-400 italic">Conectando ao servidor multiplayer...</p>';
-
-        // O endereço 'ws://' ou 'wss://' do seu futuro servidor iria aqui.
-        // AGORA CONECTANDO AO SERVIDOR ONLINE NO RENDER!
-        const socket = new WebSocket('wss://eldoria-cronicas-do-oraculo.onrender.com');
-
-        socket.onopen = function(e) {
-            console.log("[Multiplayer] Conexão estabelecida!");
-            multiplayerInfo.innerHTML = '<p class="text-green-400 italic">Conectado ao servidor! (Modo Online)</p>';
-            // Aqui você enviaria os dados do seu personagem para o servidor
-            // socket.send(JSON.stringify({ type: 'JOIN_GAME', data: localCharacterProfile }));
-        };
-
-        socket.onmessage = function(event) {
-            console.log(`[Multiplayer] Dados recebidos do servidor: ${event.data}`);
-            // Aqui você processaria as atualizações do estado do jogo vindas do servidor
-        };
-
-        socket.onerror = function(error) {
-            console.error(`[Multiplayer] Erro no WebSocket: ${error.message}`);
-            multiplayerInfo.innerHTML = '<p class="text-red-500 italic">Falha ao conectar ao servidor.</p>';
-        };
+        setMusicTrack(MUSIC_TRACKS.menu); // NOVO: Garante que a música do menu toque
     }
 
     function updateDifficultyButtons() {
