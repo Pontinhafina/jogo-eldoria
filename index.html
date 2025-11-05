@@ -7,6 +7,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Adiciona Tone.js -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
+    <!-- <script src="phaser.js"></script> --> <!-- Phaser desativado temporariamente para focar na UI principal -->
     <link rel="stylesheet" href="style.css">
     <!--<style>
         @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400..900&family=Merriweather:ital,wght@0,300;0,400;0,700;0,900;1,300;1,400;1,700;1,900&display=swap');
@@ -198,7 +199,7 @@
             z-index: 50; 
             overflow-y: auto; 
             background: linear-gradient(135deg, var(--primary-medium) 0%, var(--primary-dark) 100%);
-            border-right: 2px solid var(--accent-gold);
+            border-right: 2px solid var(--accent-gold); /* Borda para desktop */
             padding-top: 4rem;
         }
         
@@ -211,6 +212,7 @@
                 min-width: 300px; 
                 width: 300px; 
                 padding-top: 1rem;
+                border-right: 2px solid var(--accent-gold);
             } 
         }
         
@@ -226,6 +228,7 @@
             border-radius: 50%; 
             width: 40px;
             height: 40px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.5);
         }
         
         @media (min-width: 768px) { 
@@ -615,6 +618,27 @@
             transform: translateY(-2px);
         }
 
+        /* NOVO: Imagem de fundo para a área de chat */
+        #chat-area {
+            position: relative;
+            background-color: rgba(26, 31, 46, 0.8);
+        }
+        #chat-area::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-image: url('assets/sprites/image_de_fundo.png');
+            background-size: cover;
+            background-position: center;
+            background-blend-mode: overlay;
+            opacity: 0.5; /* Controla a intensidade da imagem de fundo */
+            z-index: -1;
+        }
+        #chat-area .message-box {
+            /* Adiciona um fundo semi-transparente às caixas de mensagem para melhorar a legibilidade */
+            background-color: rgba(42, 50, 69, 0.7);
+        }
+
         .choice-letter {
             display: inline-block;
             width: 24px;
@@ -833,13 +857,13 @@
         }
     </style>--> 
 </head>
-<body class="h-screen overflow-hidden">
+<body class="h-screen overflow-y-auto md:overflow-hidden">
 
     <!-- ============================================= -->
     <!-- NOVO: MENU PRINCIPAL -->
     <!-- ============================================= -->
     <div id="main-menu" class="fixed inset-0 bg-primary-dark z-[100] flex flex-col items-center justify-center p-4 text-center">
-        <div class="absolute inset-0 bg-cover bg-center opacity-20" style="background-image: url('assets/sprites/M2oGdpo.png');"></div>
+        <div class="absolute inset-0 bg-cover bg-center opacity-20" style="background-image: url('assets/sprites/Capa.png');"></div>
         <div class="relative z-10">
             <h1 class="text-5xl md:text-7xl font-bold text-accent-gold mb-4" style="font-family: 'Cinzel', serif; text-shadow: 0 0 15px rgba(212, 175, 55, 0.7);">Eldoria</h1>
             <p class="text-xl md:text-2xl text-text-dim mb-12" style="font-family: 'Merriweather', serif;">Crônicas do Oráculo</p>
@@ -872,7 +896,7 @@
                     <label for="music-volume-slider" class="block text-text-dim mb-2">🎵 Volume da Música</label>
                     <input type="range" id="music-volume-slider" min="0" max="1" step="0.05" class="w-full">
                 </div>
-                <div class="setting-item">
+                <div class="setting-item">voce fez mudança mnão 
                     <label for="sfx-volume-slider" class="block text-text-dim mb-2">💥 Volume dos Efeitos</label>
                     <input type="range" id="sfx-volume-slider" min="0" max="1" step="0.05" class="w-full">
                 </div>
@@ -899,24 +923,8 @@
     <!-- ============================================= -->
     <div id="game-wrapper" class="hidden flex-col h-full md:flex-row w-full">
 
-        <aside id="sidebar" class="p-4 flex flex-col pt-16 shrink-0">
-            <h2 class="text-2xl font-bold text-center mb-6" style="font-family: 'Cinzel', serif; color: var(--accent-gold);">Detalhes da Aventura</h2>
-
-            <!-- Seção Modo de Jogo -->
-            <div class="sidebar-section">
-                <h3>Modo de Jogo</h3>
-                <div class="game-mode-buttons">
-                    <div class="mode-button singleplayer-mode active" id="singleplayer-btn">
-                        🎯 Singleplayer
-                    </div>
-                    <div class="mode-button multiplayer-mode" id="multiplayer-btn">
-                        🎮 Multiplayer
-                    </div>
-                </div>
-                <div id="multiplayer-info" class="text-sm">
-                    <p class="text-gray-400 italic">Modo singleplayer ativo</p>
-                </div>
-            </div>
+        <aside id="sidebar" class="p-4 flex flex-col pt-16 md:pt-4 shrink-0">
+            <h2 class="text-2xl font-bold text-center mb-6" style="font-family: 'Cinzel', serif; color: var(--accent-gold);">Sua Aventura</h2>
 
             <!-- Seção Personagem -->
             <div class="sidebar-section">
@@ -1098,7 +1106,7 @@
             </svg>
         </button>
 
-        <div class="flex flex-col flex-grow p-2 md:p-4 min-h-0">
+        <div class="flex flex-col flex-grow p-2 md:p-4 min-h-0 w-full">
             <header id="main-header" class="text-center p-3 rounded-xl mb-2">
                 <h1 class="tracking-wider">Eldoria: Crônicas do Oráculo</h1>
                 <div class="text-xs mt-1">
@@ -1234,19 +1242,6 @@
                         <p class="text-sm text-gray-300">Escolha seu modo de jogo e personagem</p>
                     </div>
                     
-                    <!-- Seleção de Modo -->
-                    <div class="creation-section">
-                        <h3 class="creation-section-title">Modo de Jogo</h3>
-                        <div class="game-mode-buttons">
-                            <div class="mode-button singleplayer-mode active" id="setup-singleplayer-btn">
-                                🎯 Singleplayer
-                            </div>
-                            <div class="mode-button multiplayer-mode" id="setup-multiplayer-btn">
-                                🎮 Multiplayer
-                            </div>
-                        </div>
-                    </div>
-
                     <!-- Seleção de Modo de História -->
                     <div class="creation-section">
                         <h3 class="creation-section-title">Modo de História</h3>
@@ -1583,6 +1578,6 @@
     SCRIPT PRINCIPAL DO JOGO
     =============================================
     -->
-    <script src="game.js"></script>
+    <script src="game.js" defer></script>
 </body>
 </html>
